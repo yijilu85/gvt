@@ -37,6 +37,15 @@
           >
         </li>
         <li>
+          Image Library:
+          <a
+            href="https://unsplash.com/de/"
+            target="_blank"
+            class="text-primary underline"
+            >Unsplash</a
+          >
+        </li>
+        <li>
           Hosting, Deployment und CI/CD:
           <a
             href="https://github.com/"
@@ -50,6 +59,16 @@
         <br />
         Die Webanwendung wurde mit einer simplen Vue-JS Single Page Application
         realisiert.
+        <br />
+        Bildquelle: Das Muster der Scheibe stammt von
+        <a
+          href="https://unsplash.com/de/fotos/blue-red-and-white-artwork-lQT_bOWtysE"
+          target="_blank"
+          class="text-primary underline"
+          >Unsplash</a
+        >.
+        <br />
+        <br />
       </p>
       <p>
         Das Hosting und Deployment erfolgt über Github Pages, die CI/CD-Pipeline
