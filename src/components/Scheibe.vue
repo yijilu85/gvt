@@ -1,5 +1,8 @@
 <template>
   <v-container class="h-full flex flex-col items-center" max-width="900">
+    <div v-if="!imagesReady" class="mb-4 text-sm text-medium-emphasis">
+      Loading animation frames...
+    </div>
     <v-img
       alt="Scheibe"
       class="mb-4"
@@ -22,7 +25,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { ref, computed, onMounted } from "vue";
 import { useMagicKeys, useIntervalFn, whenever } from "@vueuse/core";
 const { a, l, r } = useMagicKeys();
 
@@ -54,16 +57,39 @@ const IMAGES = [
 ];
 
 const currentImageIndex = ref(0);
-const currentImage = computed(() => IMAGES[currentImageIndex.value]);
-const imgPath = computed(
-  () =>
-    new URL(`../assets/scheibe/${currentImage.value}`, import.meta.url).href,
+const imagesReady = ref(false);
+const imageUrls = computed(() =>
+  IMAGES.map((file) => new URL(`../assets/scheibe/${file}`, import.meta.url).href),
 );
+const currentImage = computed(() => IMAGES[currentImageIndex.value]);
+const imgPath = computed(() => imageUrls.value[currentImageIndex.value]);
+
+const preloadImages = async () => {
+  await Promise.all(
+    imageUrls.value.map(
+      (url) =>
+        new Promise<void>((resolve) => {
+          const image = new Image();
+          image.onload = () => resolve();
+          image.onerror = () => resolve();
+          image.src = url;
+        }),
+    ),
+  );
+
+  imagesReady.value = true;
+};
+
+onMounted(() => {
+  void preloadImages();
+});
 
 type Direction = "left" | "right";
 const currentDirection = ref<Direction>("right");
 
 const rotate = () => {
+  if (!imagesReady.value) return;
+
   if (currentDirection.value === "right") {
     if (currentImageIndex.value < IMAGES.length - 1) {
       currentImageIndex.value++;
@@ -83,13 +109,19 @@ const { isActive, pause, resume } = useIntervalFn(rotate, 150, {
   immediate: false,
 });
 
-const toggleAutoPlay = () => (isActive.value ? pause() : resume());
+const toggleAutoPlay = () => {
+  if (!imagesReady.value) return;
+  if (isActive.value) pause();
+  else resume();
+};
 
 const rotateLeft = () => {
+  if (!imagesReady.value) return;
   setDirection("left");
   rotate();
 };
 const rotateRight = () => {
+  if (!imagesReady.value) return;
   setDirection("right");
   rotate();
 };
