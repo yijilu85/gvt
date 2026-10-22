@@ -88,6 +88,11 @@
         können.
       </p>
       <p>
+        Das Design ist Darkmode kompatibel, d.h. Canvas-Hintergrund, Raster- und
+        Formfarbe berücksichtigen den Browser-Darkmode und passen sich
+        entsprechend an.
+      </p>
+      <p>
         Die zentrale Komponente RoseGenerator.vue ist für das Rendern der
         Blütenform zuständig. Sie erhält vom Parent-Komponent die Parameter für
         Blütenzahl (petals) und Vertices-Anzal (vertices), die über Slider im
@@ -127,7 +132,7 @@
 <script lang="ts" setup>
 const parentTemplate = `
 <template>
-  <TresCanvas class="tres-canvas" clear-color="#FFFFFF" window-size>
+  <TresCanvas class="tres-canvas" :clear-color="backgroundColor" window-size>
     <RoseGenerator :petals="petals" :vertices="vertices" />
   </TresCanvas>
   <div class="sliders flex gap-4 mt-20">
@@ -156,8 +161,19 @@ const parentTemplate = `
 
 import { TresCanvas } from "@tresjs/core";
 import RoseGenerator from "@/components/RoseGenerator.vue";
-import { ref } from "vue";
+import { ref, computed } from "vue";
+import { useTheme } from "vuetify";
 
+const theme = useTheme();
+const isDark = computed(() => theme.global.current.value.dark);
+
+const backgroundColor = computed(() => {
+  if (isDark.value) {
+    return "#121212";
+  } else {
+    return "#ffffff";
+  }
+});
 const petals = ref(5);
 const vertices = ref(10);`;
 
@@ -167,21 +183,41 @@ const childTemplate = `
     :position="[0, cameraHeight, 0]"
     :look-at="[0, 0, 0]"
   />
+
   <TresLineLoop :geometry="pattern">
-    <TresLineBasicMaterial color="#8514D9" />
+    <TresLineBasicMaterial :color="patternColor" />
   </TresLineLoop>
 
-  <TresGridHelper :args="[6, 16, '#D9D9D9', '#D9D9D9']" />
+  <TresGridHelper :key="gridColor" :args="[6, 16, gridColor, gridColor]" />
 </template>
 
 import { BufferAttribute, BufferGeometry } from "three";
 import { computed } from "vue";
 import { useMediaQuery } from "@vueuse/core";
+import { useTheme } from "vuetify";
 
+const theme = useTheme();
 const isMobile = useMediaQuery("(max-width: 640px)");
 
 const cameraHeight = computed(() => (isMobile.value ? 15 : 10));
 const radius = computed(() => (isMobile.value ? 1.5 : 2));
+const isDark = computed(() => theme.global.current.value.dark);
+
+const patternColor = computed(() => {
+  if (isDark.value) {
+    return "#B754FF";
+  } else {
+    return "#8514D9";
+  }
+});
+
+const gridColor = computed(() => {
+  if (isDark.value) {
+    return "#404040";
+  } else {
+    return "#D9D9D9";
+  }
+});
 
 const props = defineProps({
   petals: Number,
@@ -252,6 +288,15 @@ code {
   .doc-code-block {
     padding: 0.7rem;
     font-size: 0.75rem;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .doc-code-block {
+    background: #2e2e2e;
+  }
+  code {
+    color: #85bced;
   }
 }
 </style>

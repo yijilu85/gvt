@@ -3,22 +3,42 @@
     :position="[0, cameraHeight, 0]"
     :look-at="[0, 0, 0]"
   />
+
   <TresLineLoop :geometry="pattern">
-    <TresLineBasicMaterial color="#8514D9" />
+    <TresLineBasicMaterial :color="patternColor" />
   </TresLineLoop>
 
-  <TresGridHelper :args="[6, 16, '#D9D9D9', '#D9D9D9']" />
+  <TresGridHelper :key="gridColor" :args="[6, 16, gridColor, gridColor]" />
 </template>
 
 <script setup lang="ts">
 import { BufferAttribute, BufferGeometry } from "three";
 import { computed } from "vue";
 import { useMediaQuery } from "@vueuse/core";
+import { useTheme } from "vuetify";
 
+const theme = useTheme();
 const isMobile = useMediaQuery("(max-width: 640px)");
 
 const cameraHeight = computed(() => (isMobile.value ? 15 : 10));
 const radius = computed(() => (isMobile.value ? 1.5 : 2));
+const isDark = computed(() => theme.global.current.value.dark);
+
+const patternColor = computed(() => {
+  if (isDark.value) {
+    return "#B754FF";
+  } else {
+    return "#8514D9";
+  }
+});
+
+const gridColor = computed(() => {
+  if (isDark.value) {
+    return "#404040";
+  } else {
+    return "#D9D9D9";
+  }
+});
 
 const props = defineProps({
   petals: Number,
