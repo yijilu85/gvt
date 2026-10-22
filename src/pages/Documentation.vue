@@ -2,7 +2,7 @@
   <div class="documentation-view">
     <article class="mb-8">
       <h2 class="text-2xl font-bold mb-4">
-        Graphical Visualisation Technologies EA 1: Interaktiv animierte Scheibe
+        Graphical Visualisation Technologies EA 2: 2D Geometrie aus Linien
       </h2>
       <p>Yi-Ji Lu<br />BHT Berlin<br />Matrikelnummer: 929655</p>
     </article>
@@ -37,12 +37,21 @@
           >
         </li>
         <li>
-          Image Library:
+          WebGL Engine
           <a
-            href="https://unsplash.com/de/"
+            href="https://threejs.org/"
             target="_blank"
             class="text-primary underline"
-            >Unsplash</a
+            >Three.js</a
+          >
+        </li>
+        <li>
+          Vue3 Three.js Wrapper
+          <a
+            href="https://tresjs.org/"
+            target="_blank"
+            class="text-primary underline"
+            >Tres.js</a
           >
         </li>
         <li>
@@ -56,19 +65,13 @@
         </li>
       </ul>
       <p>
-        <br />
         Die Webanwendung wurde mit einer simplen Vue-JS Single Page Application
         realisiert.
-        <br />
-        Bildquelle: Das Muster der Scheibe stammt von
-        <a
-          href="https://unsplash.com/de/fotos/blue-red-and-white-artwork-lQT_bOWtysE"
-          target="_blank"
-          class="text-primary underline"
-          >Unsplash</a
-        >.
-        <br />
-        <br />
+      </p>
+      <p>
+        Als WebGL Engine wurde die Three.js Library verwendet. Tres.js ist ein
+        Open-Source Wrapper, das Three.js Funktionalität als Vue-Komponenten
+        bereitstellt.
       </p>
       <p>
         Das Hosting und Deployment erfolgt über Github Pages, die CI/CD-Pipeline
@@ -78,146 +81,151 @@
     <article>
       <h2 class="text-2xl font-bold mb-4">Implementation</h2>
       <p>
-        Ein Bild (Kreis mit einem Muster) wurde in 24 Einzelbildern erstellt mit
-        je 15° Drehung. Alle Bildpfade sind in einem Array definiert. Die
-        Rotation wird über ein Inkrementieren/Dekrementieren des Array-Index
-        realisiert. Eventlistener registrieren Key-Press und Button Press und
-        rotieren das Bild in der aktuellen Laufrichtung. Mit rotate left /
-        rotate right Aktionen wird die Richtung geändert. Autoplay rotiert die
-        Scheibe im Interval von 150ms.
+        Die zentrale Komponente <code>RoseGenerator.vue</code> ist für das
+        Rendern der Blütenform zuständig. Sie erhält vom Parent-Komponent
+        <code>WebGL.vue</code> die Parameter für Blütenzahl (petals) und
+        Vertices-Anzal (vertices), die über Slider im Interface gesteuert werden
+        können.
       </p>
       <p>
-        <br />
-        Ein Preloading der Bilder verhindert ein Flickern der Scheibe während
-        der Rotation, da die Bilder bereits im Browser Cache liegen.
-        <br />
-        Die Anwendung kann über Tastatureingabe oder Button-Klick gesteuert
-        werden.
+        Die zentrale Komponente RoseGenerator.vue ist für das Rendern der
+        Blütenform zuständig. Sie erhält vom Parent-Komponent die Parameter für
+        Blütenzahl (petals) und Vertices-Anzal (vertices), die über Slider im
+        Interface gesteuert werden können.
       </p>
-      <pre class="doc-code-block"><strong>Code-Snippet</strong>
-       {{ rawTemplate }}
+      <pre class="doc-code-block"><strong>Parent-Komponente WebGL.vue</strong>
+       {{ parentTemplate }}
+      </pre>
+      <p>
+        Bei jeder Änderung der Parameter <code>petals</code> und
+        <code>vertices</code> wird in der Child-Komponente die Funktion
+        <code>makeRose</code>
+        neu ausgeführt. Sie berechnet die Blütenform prozedural: Die Vertices
+        werden gleichmäßig über den Vollkreis verteilt, und für jeden Winkel
+        <span class="quote">θ</span> wird der Abstand zum Mittelpunkt mit der
+        Rosenkurve
+        <span class="quote">r = |cos(petals · θ / 2)| · radius</span> bestimmt.
+        Die Kurve hat dadurch genau <span class="quote">petals</span> Blätter,
+        deren Spitzen im Abstand <span class="quote">radius</span> liegen und
+        die sich im Mittelpunkt treffen. Die Anzahl der Vertices pro Blatt
+        bestimmt, wie glatt oder kantig die Blätter wirken: Wenige Vertices
+        ergeben eckige Blätter, viele eine glatte Kurve. Aus Winkel und Abstand
+        werden die x- und z-Koordinaten berechnet
+        <span class="quote">(y = 0)</span>, in ein
+        <code>Float32Array</code> geschrieben und als
+        <code>BufferGeometry</code> mit einer <code>LineLoop</code> gezeichnet.
+      </p>
+      <pre
+        class="doc-code-block"
+      ><strong>Child-Komponente RoseGenerator.vue</strong>
+       {{ childTemplate }}
       </pre>
     </article>
   </div>
 </template>
 
 <script lang="ts" setup>
-const rawTemplate = `
-const { a, l, r } = useMagicKeys();
+const parentTemplate = `
+<template>
+  <TresCanvas class="tres-canvas" clear-color="#FFFFFF" window-size>
+    <RoseGenerator :petals="petals" :vertices="vertices" />
+  </TresCanvas>
+  <div class="sliders flex gap-4 mt-20">
+    <div class="flex gap-4 w-full">
+      <span>Petals:</span>
+      <v-slider
+        v-model="petals"
+        :max="15"
+        :min="3"
+        :step="1"
+        thumb-label="always"
+      ></v-slider>
+    </div>
+    <div class="flex gap-4 w-full">
+      <span>Vertices per Petal</span>
+      <v-slider
+        v-model="vertices"
+        :max="50"
+        :min="6"
+        :step="2"
+        thumb-label="always"
+      ></v-slider>
+    </div>
+  </div>
+</template>
 
-const IMAGES = [
-  "0.jpg",
-  "15.jpg",
-  "30.jpg",
-  "45.jpg",
-  "60.jpg",
-  "75.jpg",
-  "90.jpg",
-  "105.jpg",
-  "120.jpg",
-  "135.jpg",
-  "150.jpg",
-  "165.jpg",
-  "180.jpg",
-  "195.jpg",
-  "210.jpg",
-  "225.jpg",
-  "240.jpg",
-  "255.jpg",
-  "270.jpg",
-  "285.jpg",
-  "300.jpg",
-  "315.jpg",
-  "330.jpg",
-  "345.jpg",
-];
+import { TresCanvas } from "@tresjs/core";
+import RoseGenerator from "@/components/RoseGenerator.vue";
+import { ref } from "vue";
 
-const currentImageIndex = ref(0);
-const imagesReady = ref(false);
-const imageUrls = computed(() =>
-  IMAGES.map((file) => new URL(../assets/scheibe/file, import.meta.url).href),
-);
-const currentImage = computed(() => IMAGES[currentImageIndex.value]);
-const imgPath = computed(() => imageUrls.value[currentImageIndex.value]);
+const petals = ref(5);
+const vertices = ref(10);`;
 
-const preloadImages = async () => {
-  await Promise.all(
-    imageUrls.value.map(
-      (url) =>
-        new Promise<void>((resolve) => {
-          const image = new Image();
-          image.onload = () => resolve();
-          image.onerror = () => resolve();
-          image.src = url;
-        }),
-    ),
-  );
+const childTemplate = `
+<template>
+  <TresPerspectiveCamera
+    :position="[0, cameraHeight, 0]"
+    :look-at="[0, 0, 0]"
+  />
+  <TresLineLoop :geometry="pattern">
+    <TresLineBasicMaterial color="#8514D9" />
+  </TresLineLoop>
 
-  imagesReady.value = true;
-};
+  <TresGridHelper :args="[6, 16, '#D9D9D9', '#D9D9D9']" />
+</template>
 
-onMounted(() => {
-  void preloadImages();
+import { BufferAttribute, BufferGeometry } from "three";
+import { computed } from "vue";
+import { useMediaQuery } from "@vueuse/core";
+
+const isMobile = useMediaQuery("(max-width: 640px)");
+
+const cameraHeight = computed(() => (isMobile.value ? 15 : 10));
+const radius = computed(() => (isMobile.value ? 1.5 : 2));
+
+const props = defineProps({
+  petals: Number,
+  vertices: Number,
 });
 
-type Direction = "left" | "right";
-const currentDirection = ref<Direction>("right");
+function makeRose(petals: number, vertices: number) {
+  const vpp = 2 * Math.max(1, Math.round(vertices / 2));
+  const vertexCount = petals * vpp;
 
-const rotate = () => {
-  if (!imagesReady.value) return;
-
-  if (currentDirection.value === "right") {
-    if (currentImageIndex.value < IMAGES.length - 1) {
-      currentImageIndex.value++;
-    } else {
-      currentImageIndex.value = 0;
-    }
-  } else if (currentDirection.value === "left") {
-    if (currentImageIndex.value > 0) {
-      currentImageIndex.value--;
-    } else {
-      currentImageIndex.value = IMAGES.length - 1;
-    }
+  const pos = new Float32Array(vertexCount * 3);
+  for (let i = 0; i < vertexCount; i++) {
+    const theta = (i / vertexCount) * Math.PI * 2;
+    const c = Math.abs(Math.cos((petals * theta) / 2));
+    const r = c * radius.value;
+    pos[i * 3] = r * Math.cos(theta);
+    pos[i * 3 + 1] = 0;
+    pos[i * 3 + 2] = r * Math.sin(theta);
   }
-};
+  const geo = new BufferGeometry();
+  geo.setAttribute("position", new BufferAttribute(pos, 3));
+  return geo;
+}
 
-const { isActive, pause, resume } = useIntervalFn(rotate, 150, {
-  immediate: false,
-});
-
-const toggleAutoPlay = () => {
-  if (!imagesReady.value) return;
-  if (isActive.value) pause();
-  else resume();
-};
-
-const rotateLeft = () => {
-  if (!imagesReady.value) return;
-  setDirection("left");
-  rotate();
-};
-const rotateRight = () => {
-  if (!imagesReady.value) return;
-  setDirection("right");
-  rotate();
-};
-
-whenever(a, () => {
-  toggleAutoPlay();
-});
-whenever(l, () => {
-  rotateLeft();
-});
-whenever(r, () => {
-  rotateRight();
-});
-
-const setDirection = (direction: Direction) => {
-  currentDirection.value = direction;
-};`;
+const pattern = computed(() => {
+  const petals = props.petals || 5;
+  const vertices = props.vertices || 80;
+  return makeRose(petals, vertices);
+});`;
 </script>
 
 <style scoped>
+p {
+  margin-bottom: 1em;
+}
+
+code {
+  color: #322e94;
+}
+
+.quote {
+  font-style: italic;
+  font-weight: 600;
+}
 .documentation-view {
   width: 100%;
   min-width: 0;

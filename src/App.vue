@@ -2,7 +2,10 @@
   <v-app>
     <v-main>
       <nav class="main-nav mt-4 mb-6 sm:mt-8 sm:mb-8">
-        <RouterLink activeClass="active" to="/">Interaktive Scheibe</RouterLink>
+        <!-- <RouterLink activeClass="active" to="/">Interaktive Scheibe</RouterLink> -->
+        <RouterLink activeClass="active" to="/webgl"
+          >Geometrische Form</RouterLink
+        >
         <RouterLink activeClass="active" to="/documentation"
           >Dokumentation</RouterLink
         >
@@ -32,6 +35,7 @@
 }
 
 .main-nav {
+  position: relative;
   width: min(100%, 1000px);
   margin-inline: auto;
   padding: 0 1rem;
@@ -39,6 +43,7 @@
   justify-content: flex-end;
   gap: 2rem;
   flex-wrap: wrap;
+  z-index: 9999;
 }
 
 @media (max-width: 640px) {

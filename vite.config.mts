@@ -4,14 +4,19 @@ import Vue from "@vitejs/plugin-vue";
 import Fonts from "unplugin-fonts/vite";
 import { defineConfig } from "vite";
 import Vuetify, { transformAssetUrls } from "vite-plugin-vuetify";
+import { templateCompilerOptions } from "@tresjs/core";
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  base: "/gvt-ea1/",
+  base: "/gvt-ea2/",
   plugins: [
     tailwindcss(),
     Vue({
-      template: { transformAssetUrls },
+      ...templateCompilerOptions,
+      template: {
+        ...templateCompilerOptions.template,
+        transformAssetUrls,
+      },
     }),
     // https://github.com/vuetifyjs/vuetify-loader/tree/master/packages/vite-plugin#readme
     Vuetify({
