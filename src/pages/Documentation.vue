@@ -228,7 +228,14 @@ const template = `
   <TresMesh :geometry="fillGeometry" :position="[0, -0.005, 0]">
     <TresMeshBasicMaterial :color="edgeColor" :wireframe="true" />
   </TresMesh>
-</template>`;
+</template>
+
+const fillGeometry = computed(() => {
+  const geo = new BufferGeometry();
+  geo.setAttribute("position", positions.value);
+  geo.setIndex(indices.value);
+  return geo;
+});`;
 </script>
 
 <style scoped>
