@@ -81,7 +81,7 @@
     <article>
       <h2 class="text-2xl font-bold mb-4">Implementation</h2>
       <p>
-        Die zentrale Komponente <code>RoseGenerator.vue</code> ist für das
+        Die zentrale Komponente <code>RoseGeneratorFill.vue</code> ist für das
         Rendern der Blütenform zuständig. Sie erhält vom Parent-Komponent
         <code>WebGL.vue</code> die Parameter für Blütenzahl (petals) und
         Vertices-Anzal (vertices), die über Slider im Interface gesteuert werden
@@ -93,14 +93,11 @@
         entsprechend an.
       </p>
       <p>
-        Die zentrale Komponente RoseGenerator.vue ist für das Rendern der
+        Die zentrale Komponente RoseGeneratorFill.vue ist für das Rendern der
         Blütenform zuständig. Sie erhält vom Parent-Komponent die Parameter für
         Blütenzahl (petals) und Vertices-Anzal (vertices), die über Slider im
         Interface gesteuert werden können.
       </p>
-      <pre class="doc-code-block"><strong>Parent-Komponente WebGL.vue</strong>
-       {{ parentTemplate }}
-      </pre>
       <p>
         Bei jeder Änderung der Parameter <code>petals</code> und
         <code>vertices</code> wird in der Child-Komponente die Funktion
@@ -118,135 +115,120 @@
         werden die x- und z-Koordinaten berechnet
         <span class="quote">(y = 0)</span>, in ein
         <code>Float32Array</code> geschrieben und als
-        <code>BufferGeometry</code> mit einer <code>LineLoop</code> gezeichnet.
+        <code>BufferGeometry</code> mit einer <code>TresMesh</code> gezeichnet.
       </p>
       <pre
         class="doc-code-block"
-      ><strong>Child-Komponente RoseGenerator.vue</strong>
-       {{ childTemplate }}
+      ><strong>Dynamische Vertices-Generierung in Komponente RoseGeneratorFill.vue</strong>
+       {{ positions }}
+      </pre>
+
+      <p>
+        Damit ergeben sich bei 5 Petals und 10 Vertices pro Petal folgende
+        Vertices:
+      </p>
+      <v-img
+        :width="700"
+        aspect-ratio="16/9"
+        cover
+        src="../assets/doc-imgs/petal-vertices.jpg"
+      ></v-img>
+      <p>
+        Für die Triangulation wird nun jedes Petal einzeln betrachtet. Ausgehend
+        von der Spitze des Petals wird ein doppeltes Reißverschlussverfahren
+        genutzt, um jeweils mit 2 hochzählenden Pointern Dreiecke zu generieren.
+        Pro Petal mit 10 Vertices ergeben sich daraus 8 Dreiecke:
+      </p>
+      <v-img
+        :width="900"
+        aspect-ratio="16/9"
+        cover
+        src="../assets/doc-imgs/triangulation.jpg"
+      ></v-img>
+      <pre class="doc-code-block"><strong>Triangulation eines Petal</strong>
+       {{ triangulation }}
+      </pre>
+      <p>
+        Die Vertices werden dann einmal als Fläche und einmal als Wireframe
+        gerendered.
+      </p>
+      <pre class="doc-code-block"><strong>Rendering des Template</strong>
+       {{ template }}
       </pre>
     </article>
   </div>
 </template>
 
 <script lang="ts" setup>
-const parentTemplate = `
-<template>
-  <TresCanvas class="tres-canvas" :clear-color="backgroundColor" window-size>
-    <RoseGenerator :petals="petals" :vertices="vertices" />
-  </TresCanvas>
-  <div class="sliders flex gap-4 mt-20">
-    <div class="flex gap-4 w-full">
-      <span>Petals:</span>
-      <v-slider
-        v-model="petals"
-        :max="15"
-        :min="3"
-        :step="1"
-        thumb-label="always"
-      ></v-slider>
-    </div>
-    <div class="flex gap-4 w-full">
-      <span>Vertices per Petal</span>
-      <v-slider
-        v-model="vertices"
-        :max="50"
-        :min="6"
-        :step="2"
-        thumb-label="always"
-      ></v-slider>
-    </div>
-  </div>
-</template>
-
-import { TresCanvas } from "@tresjs/core";
-import RoseGenerator from "@/components/RoseGenerator.vue";
-import { ref, computed } from "vue";
-import { useTheme } from "vuetify";
-
-const theme = useTheme();
-const isDark = computed(() => theme.global.current.value.dark);
-
-const backgroundColor = computed(() => {
-  if (isDark.value) {
-    return "#121212";
-  } else {
-    return "#ffffff";
+const positions = `
+const positions = computed(() => {
+  const n = vertexCount.value;
+  const pos = new Float32Array(n * 3);
+  for (let i = 0; i < n; i++) {
+    const theta = (i / n) * Math.PI * 2;
+    const r = Math.abs(Math.cos((petalCount.value * theta) / 2)) * radius.value;
+    pos[i * 3] = r * Math.cos(theta);
+    pos[i * 3 + 1] = 0;
+    pos[i * 3 + 2] = r * Math.sin(theta);
   }
-});
-const petals = ref(5);
-const vertices = ref(10);`;
+  return new BufferAttribute(pos, 3);
+});`;
 
-const childTemplate = `
+const triangulation = `
+const triangulatePetal = (tip: number, vpp: number, n: number): number[] => {
+  const half = vpp / 2;
+  const w = (i: number) => ((i % n) + n) % n;
+
+  let a = tip - 1;
+  let b = tip + 1;
+  const triagles: number[] = [w(tip), w(a), w(b)];
+
+  let lowerLeft = half - 1;
+  let upperLeft = half - 2;
+  let lowerTurn = true;
+
+  while (lowerLeft > 0 || upperLeft > 0) {
+    if ((lowerTurn && lowerLeft > 0) || upperLeft === 0) {
+      const next = a - 1;
+      triagles.push(w(b), w(a), w(next));
+      a = next;
+      lowerLeft--;
+    } else {
+      const next = b + 1;
+      triagles.push(w(a), w(next), w(b));
+      b = next;
+      upperLeft--;
+    }
+    lowerTurn = !lowerTurn;
+  }
+  return triagles;
+};
+
+const indices = computed(() =>
+  Array.from({ length: petalCount.value }, (_, k) =>
+    triangulatePetal(k * vpp.value, vpp.value, vertexCount.value),
+  ).flat(),
+);`;
+
+const template = `
 <template>
   <TresPerspectiveCamera
     :position="[0, cameraHeight, 0]"
     :look-at="[0, 0, 0]"
   />
+  <TresGridHelper
+    :key="gridColor"
+    :position="[0, -0.02, 0]"
+    :args="[6, 16, gridColor, gridColor]"
+  />
+  <TresMesh :geometry="fillGeometry" :position="[0, -0.01, 0]">
+    <TresMeshBasicMaterial :color="fillColor" :side="2" />
+  </TresMesh>
 
-  <TresLineLoop :geometry="pattern">
-    <TresLineBasicMaterial :color="patternColor" />
-  </TresLineLoop>
-
-  <TresGridHelper :key="gridColor" :args="[6, 16, gridColor, gridColor]" />
-</template>
-
-import { BufferAttribute, BufferGeometry } from "three";
-import { computed } from "vue";
-import { useMediaQuery } from "@vueuse/core";
-import { useTheme } from "vuetify";
-
-const theme = useTheme();
-const isMobile = useMediaQuery("(max-width: 640px)");
-
-const cameraHeight = computed(() => (isMobile.value ? 15 : 10));
-const radius = computed(() => (isMobile.value ? 1.5 : 2));
-const isDark = computed(() => theme.global.current.value.dark);
-
-const patternColor = computed(() => {
-  if (isDark.value) {
-    return "#B754FF";
-  } else {
-    return "#8514D9";
-  }
-});
-
-const gridColor = computed(() => {
-  if (isDark.value) {
-    return "#404040";
-  } else {
-    return "#D9D9D9";
-  }
-});
-
-const props = defineProps({
-  petals: Number,
-  vertices: Number,
-});
-
-function makeRose(petals: number, vertices: number) {
-  const vpp = 2 * Math.max(1, Math.round(vertices / 2));
-  const vertexCount = petals * vpp;
-
-  const pos = new Float32Array(vertexCount * 3);
-  for (let i = 0; i < vertexCount; i++) {
-    const theta = (i / vertexCount) * Math.PI * 2;
-    const c = Math.abs(Math.cos((petals * theta) / 2));
-    const r = c * radius.value;
-    pos[i * 3] = r * Math.cos(theta);
-    pos[i * 3 + 1] = 0;
-    pos[i * 3 + 2] = r * Math.sin(theta);
-  }
-  const geo = new BufferGeometry();
-  geo.setAttribute("position", new BufferAttribute(pos, 3));
-  return geo;
-}
-
-const pattern = computed(() => {
-  const petals = props.petals || 5;
-  const vertices = props.vertices || 80;
-  return makeRose(petals, vertices);
-});`;
+  <TresMesh :geometry="fillGeometry" :position="[0, -0.005, 0]">
+    <TresMeshBasicMaterial :color="edgeColor" :wireframe="true" />
+  </TresMesh>
+</template>`;
 </script>
 
 <style scoped>

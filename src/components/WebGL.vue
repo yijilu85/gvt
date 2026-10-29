@@ -1,6 +1,6 @@
 <template>
   <TresCanvas class="tres-canvas" :clear-color="backgroundColor" window-size>
-    <RoseGenerator :petals="petals" :vertices="vertices" />
+    <RoseGeneratorFill :petals="petals" :vertices="vertices" />
   </TresCanvas>
   <div class="sliders flex gap-4 mt-20">
     <div class="flex gap-4 w-full">
@@ -28,7 +28,7 @@
 
 <script setup lang="ts">
 import { TresCanvas } from "@tresjs/core";
-import RoseGenerator from "@/components/RoseGenerator.vue";
+import RoseGeneratorFill from "@/components/RoseGeneratorFill.vue";
 import { ref, computed } from "vue";
 import { useTheme } from "vuetify";
 
