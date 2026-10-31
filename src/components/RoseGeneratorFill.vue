@@ -12,7 +12,11 @@
     <TresMeshBasicMaterial :color="fillColor" :side="2" />
   </TresMesh>
 
-  <TresMesh :geometry="fillGeometry" :position="[0, -0.005, 0]">
+  <TresMesh
+    :geometry="fillGeometry"
+    :position="[0, -0.005, 0]"
+    v-if="showTriangles"
+  >
     <TresMeshBasicMaterial :color="edgeColor" :wireframe="true" />
   </TresMesh>
 </template>
@@ -50,6 +54,7 @@ const gridColor = computed(() => {
 const props = defineProps({
   petals: Number,
   vertices: Number,
+  showTriangles: Boolean,
 });
 
 const positions = computed(() => {
