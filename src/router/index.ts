@@ -8,7 +8,7 @@
 import { createRouter, createWebHistory } from "vue-router";
 import Index from "@/pages/index.vue";
 import Documentation from "@/pages/Documentation.vue";
-import WebGL from "@/components/WebGL.vue";
+import ShapeFill from "@/components/ShapeFill.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -16,10 +16,10 @@ const router = createRouter({
   routes: [
     {
       path: "/",
-      component: WebGL,
+      component: ShapeFill,
     },
     { path: "/documentation", component: Documentation },
-    { path: "/webgl", component: WebGL },
+    { path: "/shapefill", component: ShapeFill },
   ],
 });
 
