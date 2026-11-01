@@ -2,7 +2,7 @@
   <div class="documentation-view">
     <article class="mb-8">
       <h2 class="text-2xl font-bold mb-4">
-        Graphical Visualisation Technologies EA 2: 2D Geometrie aus Linien
+        Graphical Visualisation Technologies EA 3: Farbig gefüllte 2D Geometrie
       </h2>
       <p>Yi-Ji Lu<br />BHT Berlin<br />Matrikelnummer: 929655</p>
     </article>
