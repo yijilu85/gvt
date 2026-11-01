@@ -106,20 +106,20 @@
         werden gleichmäßig über den Vollkreis verteilt, und für jeden Winkel
         <span class="quote">θ</span> wird der Abstand zum Mittelpunkt mit der
         Rosenkurve
-        <span class="quote">r = |cos(petals · θ / 2)| · radius</span> bestimmt.
-        Die Kurve hat dadurch genau <span class="quote">petals</span> Blätter,
-        deren Spitzen im Abstand <span class="quote">radius</span> liegen und
-        die sich im Mittelpunkt treffen. Die Anzahl der Vertices pro Blatt
-        bestimmt, wie glatt oder kantig die Blätter wirken: Wenige Vertices
-        ergeben eckige Blätter, viele eine glatte Kurve. Aus Winkel und Abstand
-        werden die x- und z-Koordinaten berechnet
-        <span class="quote">(y = 0)</span>, in ein
+        <span class="quote">r = |cos(petalCount · θ / 2)| · radius</span>
+        bestimmt. Die Kurve hat dadurch genau
+        <span class="quote">petalCount</span> Blätter, deren Spitzen im Abstand
+        <span class="quote">radius</span> liegen und die sich im Mittelpunkt
+        treffen. Die Anzahl der Vertices pro Blatt bestimmt, wie glatt oder
+        kantig die Blätter wirken: Wenige Vertices ergeben eckige Blätter, viele
+        eine glatte Kurve. Aus Winkel und Abstand werden die x- und
+        z-Koordinaten berechnet <span class="quote">(y = 0)</span>, in ein
         <code>Float32Array</code> geschrieben und als
         <code>BufferGeometry</code> mit einer <code>TresMesh</code> gezeichnet.
       </p>
       <pre
         class="doc-code-block"
-      ><strong>Dynamische Vertices-Generierung in Komponente RoseGeneratorFill.vue</strong>
+      ><strong>Dynamische Vertices-Generierung für Petals</strong>
        {{ positions }}
       </pre>
 
@@ -219,16 +219,22 @@ const template = `
   <TresGridHelper
     :key="gridColor"
     :position="[0, -0.02, 0]"
-    :args="[6, 16, gridColor, gridColor]"
+    :args="[5.5, 16, gridColor, gridColor]"
   />
   <TresMesh :geometry="fillGeometry" :position="[0, -0.01, 0]">
     <TresMeshBasicMaterial :color="fillColor" :side="2" />
   </TresMesh>
 
-  <TresMesh :geometry="fillGeometry" :position="[0, -0.005, 0]">
+  <TresMesh
+    :geometry="fillGeometry"
+    :position="[0, -0.005, 0]"
+    v-if="showTriangles"
+  >
     <TresMeshBasicMaterial :color="edgeColor" :wireframe="true" />
   </TresMesh>
 </template>
+
+...
 
 const fillGeometry = computed(() => {
   const geo = new BufferGeometry();

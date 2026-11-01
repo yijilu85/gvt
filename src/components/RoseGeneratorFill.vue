@@ -6,7 +6,7 @@
   <TresGridHelper
     :key="gridColor"
     :position="[0, -0.02, 0]"
-    :args="[6, 16, gridColor, gridColor]"
+    :args="[5.5, 16, gridColor, gridColor]"
   />
   <TresMesh :geometry="fillGeometry" :position="[0, -0.01, 0]">
     <TresMeshBasicMaterial :color="fillColor" :side="2" />
