@@ -8,7 +8,7 @@
 import { createRouter, createWebHistory } from "vue-router";
 import Index from "@/pages/index.vue";
 import Documentation from "@/pages/Documentation.vue";
-import ShapeFill from "@/components/ShapeFill.vue";
+import ParametricSheet from "@/components/ParametricSheet.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -16,10 +16,10 @@ const router = createRouter({
   routes: [
     {
       path: "/",
-      component: ShapeFill,
+      component: ParametricSheet,
     },
     { path: "/documentation", component: Documentation },
-    { path: "/shapefill", component: ShapeFill },
+    { path: "/sheet", component: ParametricSheet },
   ],
 });
 
