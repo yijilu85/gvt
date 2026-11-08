@@ -1,6 +1,6 @@
 <template>
   <TresCanvas class="tres-canvas" :clear-color="backgroundColor" window-size>
-    <SheetGenerator :u="u" :v="v" :angle="angle" />
+    <SheetGenerator :u="u" :v="v" :angle="angle" :showFill="showFill" />
   </TresCanvas>
   <div class="sliders flex gap-16 mt-20">
     <div class="flex flex-col items-start gap-4 w-1/2">
@@ -24,15 +24,27 @@
           thumb-label="always"
         />
       </div>
+    </div>
+    <div class="flex flex-col items-start gap-4 w-1/2">
       <div class="flex gap-4 w-full">
         <span class="w-1/3">angle:</span>
         <v-slider
           v-model="angle"
-          :min="0"
-          :max="180"
+          :min="10"
+          :max="170"
           :step="1"
           thumb-label="always"
         />
+      </div>
+      <div class="flex gap-4 w-1/2 items-start">
+        <span class="w-1/3">Show fill:</span>
+        <v-switch
+          v-model="showFill"
+          hide-details
+          density="compact"
+          class="flex-none"
+          style="--v-input-control-height: 24px"
+        ></v-switch>
       </div>
     </div>
   </div>
@@ -46,7 +58,7 @@ import { useTheme } from "vuetify";
 
 const theme = useTheme();
 const isDark = computed(() => theme.global.current.value.dark);
-const showTriangles = ref(false);
+const showFill = ref(false);
 
 const backgroundColor = computed(() => {
   if (isDark.value) {

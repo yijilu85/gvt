@@ -8,7 +8,7 @@
   />
 
   <!-- Vorderseite: hellblau -> dunkelblau -->
-  <TresMesh :geometry="surfaceGeometry">
+  <TresMesh :geometry="surfaceGeometry" v-if="showFill">
     <TresMeshBasicMaterial
       :color="frontColor"
       :vertex-colors="true"
@@ -20,7 +20,7 @@
   </TresMesh>
 
   <!-- Rückseite: helllila -> dunkellila -->
-  <TresMesh :geometry="surfaceGeometry">
+  <TresMesh :geometry="surfaceGeometry" v-if="showFill">
     <TresMeshBasicMaterial
       :color="backColor"
       :vertex-colors="true"
@@ -51,13 +51,14 @@ import { useTheme } from "vuetify";
 
 const props = withDefaults(
   defineProps<{
-    size?: number; // side length of the square sheet
-    segments?: number; // grid cells per side
+    size?: number;
+    segments?: number;
     u: number;
     v: number;
     angle: number;
+    showFill: Boolean;
   }>(),
-  { size: 4, segments: 16 },
+  { size: 4, segments: 24 },
 );
 
 const theme = useTheme();
@@ -82,9 +83,8 @@ const yScale = computed(() => {
 });
 
 const thetaRad = computed(
-  () => (Math.min(Math.max(props.angle, 1), 179) * Math.PI) / 180,
+  () => (Math.min(Math.max(props.angle, 1), 170) * Math.PI) / 180,
 );
-
 const xScale = computed(() => Math.tan(thetaRad.value / 2) / props.v);
 
 // θ/2 fixiert die erste Zeile auf z, edgeAngle dreht sie dann auf 45°
