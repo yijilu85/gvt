@@ -29,7 +29,7 @@
   <div class="sliders flex gap-16 mt-12">
     <div class="flex flex-col items-start gap-4 w-1/2">
       <div class="flex gap-4 w-full" v-if="currentShape.sliders">
-        <span class="w-1/3">Height:</span>
+        <span class="w-1/3">Width:</span>
         <v-slider
           v-model="u"
           :min="0.1"
@@ -39,7 +39,7 @@
         />
       </div>
       <div class="flex gap-4 w-full" v-if="currentShape.sliders">
-        <span class="w-1/3">Width:</span>
+        <span class="w-1/3">Height:</span>
         <v-slider
           v-model="v"
           :min="0.1"
@@ -54,7 +54,7 @@
       v-if="currentShape.sliders"
     >
       <div class="flex gap-4 w-full">
-        <span class="w-1/3">angle:</span>
+        <span class="w-1/3">Angle:</span>
         <v-slider
           v-model="angle"
           :min="10"

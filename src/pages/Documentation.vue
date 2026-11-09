@@ -155,7 +155,8 @@
       </pre>
       <p>
         Die modifizierte Fläche <code>Whitney Umbrella</code> hat dynamische
-        Parameter.
+        Parameter. Der Angle Parameter steuert den Öffnungswinkel, an dem die
+        beiden Flügel sich in der Mitte schneiden.
       </p>
       <v-table>
         <thead>
@@ -170,9 +171,9 @@
         <tbody>
           <tr>
             <td>Modifizierter Whitney Umrella</td>
-            <td>dynamisch</td>
-            <td>dynamisch</td>
-            <td>dynamisch</td>
+            <td>u = props.u * (-1 + 2 * col / n)</td>
+            <td>v= props.v * vNorm → y = v * v</td>
+            <td>[10°, 170°]</td>
             <td>
               <a
                 href="http://www.3d-meier.de/tut3/Seite22.html"
