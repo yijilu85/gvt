@@ -1,10 +1,34 @@
 <template>
   <TresCanvas class="tres-canvas" :clear-color="backgroundColor" window-size>
-    <SheetGenerator :u="u" :v="v" :angle="angle" :showFill="showFill" />
+    <WhitneyUmbrella
+      :u="u"
+      :v="v"
+      :angle="angle"
+      :showFill="showFill"
+      v-if="isCurrentShape('umbrella')"
+    />
+    <Kidney :showFill="showFill" v-if="isCurrentShape('kidney')" />
+    <BohemianDome :showFill="showFill" v-if="isCurrentShape('bohemian')" />
   </TresCanvas>
-  <div class="sliders flex gap-16 mt-20">
+  <div class="control flex justify-center">
+    <v-btn @click="incrementCurrentShapeIndex"> Next Shape </v-btn>
+  </div>
+  <div class="control flex justify-center mt-8 text-xl">
+    {{ currentShape.label }}
+  </div>
+  <div class="control flex gap-4 w-full justify-center mt-4">
+    <span class="w-1/8">Show fill:</span>
+    <v-switch
+      v-model="showFill"
+      hide-details
+      density="compact"
+      class="flex-none"
+      style="--v-input-control-height: 24px"
+    ></v-switch>
+  </div>
+  <div class="sliders flex gap-16 mt-12">
     <div class="flex flex-col items-start gap-4 w-1/2">
-      <div class="flex gap-4 w-full">
+      <div class="flex gap-4 w-full" v-if="currentShape.sliders">
         <span class="w-1/3">Height:</span>
         <v-slider
           v-model="u"
@@ -14,7 +38,7 @@
           thumb-label="always"
         />
       </div>
-      <div class="flex gap-4 w-full">
+      <div class="flex gap-4 w-full" v-if="currentShape.sliders">
         <span class="w-1/3">Width:</span>
         <v-slider
           v-model="v"
@@ -25,7 +49,10 @@
         />
       </div>
     </div>
-    <div class="flex flex-col items-start gap-4 w-1/2">
+    <div
+      class="flex flex-col items-start gap-4 w-1/2"
+      v-if="currentShape.sliders"
+    >
       <div class="flex gap-4 w-full">
         <span class="w-1/3">angle:</span>
         <v-slider
@@ -36,29 +63,44 @@
           thumb-label="always"
         />
       </div>
-      <div class="flex gap-4 w-1/2 items-start">
-        <span class="w-1/3">Show fill:</span>
-        <v-switch
-          v-model="showFill"
-          hide-details
-          density="compact"
-          class="flex-none"
-          style="--v-input-control-height: 24px"
-        ></v-switch>
-      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { TresCanvas } from "@tresjs/core";
-import SheetGenerator from "@/components/SheetGenerator.vue";
+import WhitneyUmbrella from "@/components/WhitneyUmbrella.vue";
+import Kidney from "@/components/Kidney.vue";
+import BohemianDome from "@/components/BohemianDome.vue";
 import { ref, computed } from "vue";
 import { useTheme } from "vuetify";
 
 const theme = useTheme();
 const isDark = computed(() => theme.global.current.value.dark);
-const showFill = ref(false);
+const showFill = ref(true);
+const shapes = ref([
+  { id: "kidney", label: "Kidney Surface", sliders: false },
+  { id: "bohemian", label: "Bohemian Dome", sliders: false },
+  { id: "umbrella", label: "Whitney Umbrella – modifiziert", sliders: true },
+]);
+
+const currentShapeIndex = ref(0);
+
+const incrementCurrentShapeIndex = () => {
+  if (currentShapeIndex.value < shapes.value.length - 1) {
+    currentShapeIndex.value++;
+  } else {
+    currentShapeIndex.value = 0;
+  }
+};
+
+const currentShape = computed(() => {
+  return shapes.value[currentShapeIndex.value];
+});
+
+const isCurrentShape = (id: string) => {
+  return currentShape.value.id === id;
+};
 
 const backgroundColor = computed(() => {
   if (isDark.value) {
@@ -76,7 +118,8 @@ const angle = ref(110);
 .tres-canvas {
   z-index: 5;
 }
-.sliders {
+.sliders,
+.control {
   position: relative;
   z-index: 10;
 }

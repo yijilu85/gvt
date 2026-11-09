@@ -19,7 +19,7 @@ const router = createRouter({
       component: ParametricSheet,
     },
     { path: "/documentation", component: Documentation },
-    { path: "/sheet", component: ParametricSheet },
+    { path: "/parametrized", component: ParametricSheet },
   ],
 });
 

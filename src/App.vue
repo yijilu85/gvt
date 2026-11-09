@@ -3,8 +3,8 @@
     <v-main>
       <nav class="main-nav mt-4 mb-6 sm:mt-8 sm:mb-8">
         <!-- <RouterLink activeClass="active" to="/">Interaktive Scheibe</RouterLink> -->
-        <RouterLink activeClass="active" to="/shapefill"
-          >Geometrische Form trianguliert</RouterLink
+        <RouterLink activeClass="active" to="/parametrized"
+          >Parametrisierte Flächen</RouterLink
         >
         <RouterLink activeClass="active" to="/documentation"
           >Dokumentation</RouterLink

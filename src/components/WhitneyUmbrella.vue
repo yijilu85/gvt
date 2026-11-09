@@ -7,7 +7,6 @@
     :args="[5.5, 16, gridColor, gridColor]"
   />
 
-  <!-- Vorderseite: hellblau -> dunkelblau -->
   <TresMesh :geometry="surfaceGeometry" v-if="showFill">
     <TresMeshBasicMaterial
       :color="frontColor"
@@ -19,7 +18,6 @@
     />
   </TresMesh>
 
-  <!-- Rückseite: helllila -> dunkellila -->
   <TresMesh :geometry="surfaceGeometry" v-if="showFill">
     <TresMeshBasicMaterial
       :color="backColor"
@@ -31,20 +29,13 @@
     />
   </TresMesh>
 
-  <!-- grid lines on the paper (quad edges only, no diagonals) -->
   <TresLineSegments :geometry="lineGeometry">
     <TresLineBasicMaterial :color="edgeColor" />
   </TresLineSegments>
 </template>
 
 <script setup lang="ts">
-import {
-  BufferAttribute,
-  BufferGeometry,
-  DoubleSide,
-  BackSide,
-  FrontSide,
-} from "three";
+import { BufferAttribute, BufferGeometry, BackSide, FrontSide } from "three";
 import { computed } from "vue";
 import { useMediaQuery } from "@vueuse/core";
 import { useTheme } from "vuetify";
@@ -73,22 +64,12 @@ const cameraPosition = computed<[number, number, number]>(() => {
   const a = Math.PI / 12;
   return [0, target.value[1] + d * Math.sin(a), d * Math.cos(a)];
 });
-const fillColor = computed(() => (isDark.value ? "#4C1D95" : "#bc86f8"));
 const edgeColor = computed(() => (isDark.value ? "#B754FF" : "#8514D9"));
 const gridColor = computed(() => (isDark.value ? "#404040" : "#D9D9D9"));
-
-const yScale = computed(() => {
-  const theta = (Math.min(Math.max(props.angle, 1), 179) * Math.PI) / 180;
-  return Math.tan(theta / 2) / props.v;
-});
 
 const thetaRad = computed(
   () => (Math.min(Math.max(props.angle, 1), 170) * Math.PI) / 180,
 );
-const xScale = computed(() => Math.tan(thetaRad.value / 2) / props.v);
-
-// θ/2 fixiert die erste Zeile auf z, edgeAngle dreht sie dann auf 45°
-const alpha = computed(() => thetaRad.value / 2 + (45 * Math.PI) / 180);
 
 const positions = computed(() => {
   const n = props.segments;
@@ -96,7 +77,6 @@ const positions = computed(() => {
 
   const half = thetaRad.value / 2;
   const t = Math.tan(half);
-  // Verschiebung, damit die erste Zeile genau bei edgeAngle liegt
   const base = half + (45 * Math.PI) / 180;
 
   for (let row = 0; row <= n; row++) {
@@ -105,8 +85,6 @@ const positions = computed(() => {
       const vNorm = -1 + (2 * row) / n; // -1 … 1
       const v = props.v * vNorm;
 
-      // Richtungswinkel der Zeile: von edgeAngle (erste Zeile)
-      // bis edgeAngle + θ (letzte Zeile)
       const psi = Math.atan(t * vNorm) + base;
 
       const k = (row * (n + 1) + col) * 3;
@@ -139,17 +117,16 @@ const lineIndices = computed(() => {
   for (let row = 0; row <= n; row++) {
     for (let col = 0; col <= n; col++) {
       const a = row * (n + 1) + col;
-      if (col < n) idx.push(a, a + 1); // edge to the right
-      if (row < n) idx.push(a, a + n + 1); // edge downward
+      if (col < n) idx.push(a, a + 1);
+      if (row < n) idx.push(a, a + n + 1);
     }
   }
   return idx;
 });
 
-const frontColor = "#8EC5FF"; // hellblau
-const backColor = "#D9B8FF"; // helllila
+const frontColor = "#8EC5FF";
+const backColor = "#D9B8FF";
 
-// Helligkeit pro Vertex: oben (größtes y) = 1, unten = 0.25
 const gradientColors = computed(() => {
   const pos = positions.value;
   let minY = Infinity;

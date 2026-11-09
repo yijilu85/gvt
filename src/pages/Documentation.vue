@@ -2,7 +2,7 @@
   <div class="documentation-view">
     <article class="mb-8">
       <h2 class="text-2xl font-bold mb-4">
-        Graphical Visualisation Technologies EA 3: Farbig gefüllte 2D Geometrie
+        Graphical Visualisation Technologies EA 4: Parametrisierte Flächen
       </h2>
       <p>Yi-Ji Lu<br />BHT Berlin<br />Matrikelnummer: 929655</p>
     </article>
@@ -81,167 +81,294 @@
     <article>
       <h2 class="text-2xl font-bold mb-4">Implementation</h2>
       <p>
-        Die zentrale Komponente <code>RoseGeneratorFill.vue</code> ist für das
-        Rendern der Blütenform zuständig. Sie erhält vom Parent-Komponent
-        <code>WebGL.vue</code> die Parameter für Blütenzahl (petals) und
-        Vertices-Anzal (vertices), die über Slider im Interface gesteuert werden
-        können.
+        Die zentrale Komponente <code>ParametricSheet.vue</code> ist für das
+        Rendern der parametrisierten Fläche zuständig. Sie steuert das Toggle
+        der Form und das Rendering der Control-Slider.
       </p>
+      <pre class="doc-code-block"><strong>Control Component</strong>
+       {{ control }}
+      </pre>
       <p>
-        Das Design ist Darkmode kompatibel, d.h. Canvas-Hintergrund, Raster- und
-        Formfarbe berücksichtigen den Browser-Darkmode und passen sich
-        entsprechend an.
-      </p>
-      <p>
-        Die zentrale Komponente RoseGeneratorFill.vue ist für das Rendern der
-        Blütenform zuständig. Sie erhält vom Parent-Komponent die Parameter für
-        Blütenzahl (petals) und Vertices-Anzal (vertices), die über Slider im
-        Interface gesteuert werden können.
-      </p>
-      <p>
-        Bei jeder Änderung der Parameter <code>petals</code> und
-        <code>vertices</code> wird in der Child-Komponente die Funktion
-        <code>makeRose</code>
-        neu ausgeführt. Sie berechnet die Blütenform prozedural: Die Vertices
-        werden gleichmäßig über den Vollkreis verteilt, und für jeden Winkel
-        <span class="quote">θ</span> wird der Abstand zum Mittelpunkt mit der
-        Rosenkurve
-        <span class="quote">r = |cos(petalCount · θ / 2)| · radius</span>
-        bestimmt. Die Kurve hat dadurch genau
-        <span class="quote">petalCount</span> Blätter, deren Spitzen im Abstand
-        <span class="quote">radius</span> liegen und die sich im Mittelpunkt
-        treffen. Die Anzahl der Vertices pro Blatt bestimmt, wie glatt oder
-        kantig die Blätter wirken: Wenige Vertices ergeben eckige Blätter, viele
-        eine glatte Kurve. Aus Winkel und Abstand werden die x- und
-        z-Koordinaten berechnet <span class="quote">(y = 0)</span>, in ein
-        <code>Float32Array</code> geschrieben und als
-        <code>BufferGeometry</code> mit einer <code>TresMesh</code> gezeichnet.
+        Es werden 3 Formen dargestellt: <code>Kidney Surface</code>,
+        <code>Bohemian Dome</code> und ein modifizierter
+        <code>Whitney Umbrella</code>. Dafür werden jeweils für die Vorderseite
+        ein blauer Farbverlauf und für die Rückseite ein lila Farbverlauf
+        gewählt.
       </p>
       <pre
         class="doc-code-block"
-      ><strong>Dynamische Vertices-Generierung für Petals</strong>
-       {{ positions }}
-      </pre>
-
-      <p>
-        Damit ergeben sich bei 5 Petals und 10 Vertices pro Petal folgende
-        Vertices:
-      </p>
-      <v-img
-        :width="700"
-        aspect-ratio="16/9"
-        cover
-        src="../assets/doc-imgs/petal-vertices.jpg"
-      ></v-img>
-      <p>
-        Für die Triangulation wird nun jedes Petal einzeln betrachtet. Ausgehend
-        von der Spitze des Petals wird ein doppeltes Reißverschlussverfahren
-        genutzt, um jeweils mit 2 hochzählenden Pointern Dreiecke zu generieren.
-        Pro Petal mit 10 Vertices ergeben sich daraus 8 Dreiecke:
-      </p>
-      <v-img
-        :width="900"
-        aspect-ratio="16/9"
-        cover
-        src="../assets/doc-imgs/triangulation.jpg"
-      ></v-img>
-      <pre class="doc-code-block"><strong>Triangulation eines Petal</strong>
-       {{ triangulation }}
+      ><strong>Rendering von Vorderseite, Rückseite und Wireframe</strong>
+       {{ templates }}
       </pre>
       <p>
-        Die Vertices werden dann einmal als Fläche und einmal als Wireframe
-        gerendered.
+        Die Formen <code>Kidney Surface</code> und
+        <code>Bohemian Dome</code> haben jeweils feste Parameter und werden mit
+        jeweils mit einer Auflösung von <code>uSegments: 32</code> und
+        <code>vSegments: 64</code> initialisiert.
       </p>
-      <pre class="doc-code-block"><strong>Rendering des Template</strong>
-       {{ template }}
+      <v-table>
+        <thead>
+          <tr>
+            <th class="text-left">Fläche</th>
+            <th class="text-left">U</th>
+            <th class="text-left">V</th>
+            <th class="text-left">Konstanten</th>
+            <th class="text-left">Quelle</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Bohemian Dome</td>
+            <td>[0, 2π]</td>
+            <td>[0, 2π]</td>
+            <td>a= 0.8<br />b= 1.4<br />c= 1.1</td>
+            <td>
+              <a
+                href="http://www.3d-meier.de/tut3/Seite5.html"
+                target="_blank"
+                class="text-primary underline"
+                >http://www.3d-meier.de/tut3/Seite5.html</a
+              >
+            </td>
+          </tr>
+          <tr>
+            <td>Kidney Surface</td>
+            <td>[0, 2π]</td>
+            <td>[−π/2, π/2]</td>
+            <td></td>
+            <td>
+              <a
+                href="http://www.3d-meier.de/tut3/Seite42.html"
+                target="_blank"
+                class="text-primary underline"
+                >http://www.3d-meier.de/tut3/Seite42.html</a
+              >
+            </td>
+          </tr>
+        </tbody>
+      </v-table>
+      <pre class="doc-code-block"><strong>Bohemian Dome</strong>
+       {{ bohemian }}
+      </pre>
+      <pre class="doc-code-block"><strong>Kidney Surface</strong>
+       {{ kidney }}
+      </pre>
+      <p>
+        Die modifizierte Fläche <code>Whitney Umbrella</code> hat dynamische
+        Parameter.
+      </p>
+      <v-table>
+        <thead>
+          <tr>
+            <th class="text-left">Fläche</th>
+            <th class="text-left">U</th>
+            <th class="text-left">V</th>
+            <th class="text-left">Angle</th>
+            <th class="text-left">Quelle</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Modifizierter Whitney Umrella</td>
+            <td>dynamisch</td>
+            <td>dynamisch</td>
+            <td>dynamisch</td>
+            <td>
+              <a
+                href="http://www.3d-meier.de/tut3/Seite22.html"
+                target="_blank"
+                class="text-primary underline"
+                >http://www.3d-meier.de/tut3/Seite22.html</a
+              >
+            </td>
+          </tr>
+        </tbody>
+      </v-table>
+      <pre
+        class="doc-code-block"
+      ><strong>Modifizierter Whitney Umbrella</strong>
+       {{ whiteney }}
       </pre>
     </article>
   </div>
 </template>
 
 <script lang="ts" setup>
-const positions = `
+const control = `
+  <div class="control flex justify-center">
+    <v-btn @click="incrementCurrentShapeIndex"> Next Shape </v-btn>
+  </div>
+  <div class="control flex justify-center mt-8 text-xl">
+    {{ currentShape.label }}
+  </div>
+
+ <TresCanvas class="tres-canvas" :clear-color="backgroundColor" window-size>
+    <SheetGenerator
+      :u="u"
+      :v="v"
+      :angle="angle"
+      :showFill="showFill"
+      v-if="isCurrentShape('umbrella')"
+    />
+    <Kidney :showFill="showFill" v-if="isCurrentShape('kidney')" />
+    <BohemianDome :showFill="showFill" v-if="isCurrentShape('bohemian')" />
+  </TresCanvas>
+
+  const shapes = ref([
+  { id: "kidney", label: "Kidney Surface", sliders: false },
+  { id: "bohemian", label: "Bohemian Dome", sliders: false },
+  { id: "umbrella", label: "Whitney Umbrella – modifiziert", sliders: true },
+]);
+
+const currentShapeIndex = ref(0);
+
+const incrementCurrentShapeIndex = () => {
+  if (currentShapeIndex.value < shapes.value.length - 1) {
+    currentShapeIndex.value++;
+  } else {
+    currentShapeIndex.value = 0;
+  }
+};`;
+
+const bohemian = `
+const A = 0.8;
+const B = 1.4;
+const C = 1.1;
+const TWO_PI = 2 * Math.PI;
+const ROTATION = (-45 * Math.PI) / 180;
+
+const scale = computed(() => props.size / (2 * (A + B)));
+const height = computed(() => 2 * C * scale.value);
+
 const positions = computed(() => {
-  const n = vertexCount.value;
-  const pos = new Float32Array(n * 3);
-  for (let i = 0; i < n; i++) {
-    const theta = (i / n) * Math.PI * 2;
-    const r = Math.abs(Math.cos((petalCount.value * theta) / 2)) * radius.value;
-    pos[i * 3] = r * Math.cos(theta);
-    pos[i * 3 + 1] = 0;
-    pos[i * 3 + 2] = r * Math.sin(theta);
+  const nu = props.uSegments;
+  const nv = props.vSegments;
+  const stride = nu + 1;
+  const pos = new Float32Array(stride * (nv + 1) * 3);
+  const s = scale.value;
+
+  for (let row = 0; row <= nv; row++) {
+    const v = (TWO_PI * row) / nv;
+    const bCos = B * Math.cos(v);
+    const cSin = C * Math.sin(v);
+
+    for (let col = 0; col <= nu; col++) {
+      const u = (TWO_PI * col) / nu;
+
+      const fx = A * Math.cos(u);
+      const fy = bCos + A * Math.sin(u);
+      const fz = cSin;
+
+      const cosR = Math.cos(ROTATION);
+      const sinR = Math.sin(ROTATION);
+
+      const x0 = s * fy;
+      const z0 = s * fx;
+
+      const k = (row * stride + col) * 3;
+      pos[k] = x0 * cosR - z0 * sinR;
+      pos[k + 1] = s * (fz + C);
+      pos[k + 2] = x0 * sinR + z0 * cosR;
+    }
   }
   return new BufferAttribute(pos, 3);
 });`;
 
-const triangulation = `
-const triangulatePetal = (tip: number, vpp: number, n: number): number[] => {
-  const half = vpp / 2;
-  const w = (i: number) => ((i % n) + n) % n;
+const kidney = `
+const positions = computed(() => {
+  const nu = props.uSegments;
+  const nv = props.vSegments;
+  const stride = nu + 1;
+  const pos = new Float32Array(stride * (nv + 1) * 3);
 
-  let a = tip - 1;
-  let b = tip + 1;
-  const triagles: number[] = [w(tip), w(a), w(b)];
+  const scale = props.size / 8;
+  const yOffset = props.size / 2;
 
-  let lowerLeft = half - 1;
-  let upperLeft = half - 2;
-  let lowerTurn = true;
+  for (let row = 0; row <= nv; row++) {
+    const v = -Math.PI / 2 + (Math.PI * row) / nv;
+    const r = 3 * Math.cos(v) - Math.cos(3 * v);
+    const h = 3 * Math.sin(v) - Math.sin(3 * v);
 
-  while (lowerLeft > 0 || upperLeft > 0) {
-    if ((lowerTurn && lowerLeft > 0) || upperLeft === 0) {
-      const next = a - 1;
-      triagles.push(w(b), w(a), w(next));
-      a = next;
-      lowerLeft--;
-    } else {
-      const next = b + 1;
-      triagles.push(w(a), w(next), w(b));
-      b = next;
-      upperLeft--;
+    for (let col = 0; col <= nu; col++) {
+      const u = (2 * Math.PI * col) / nu;
+
+      const k = (row * stride + col) * 3;
+      pos[k] = scale * r * Math.cos(u);
+      pos[k + 1] = scale * h + yOffset;
+      pos[k + 2] = scale * r * Math.sin(u);
     }
-    lowerTurn = !lowerTurn;
   }
-  return triagles;
-};
-
-const indices = computed(() =>
-  Array.from({ length: petalCount.value }, (_, k) =>
-    triangulatePetal(k * vpp.value, vpp.value, vertexCount.value),
-  ).flat(),
-);`;
-
-const template = `
-<template>
-  <TresPerspectiveCamera
-    :position="[0, cameraHeight, 0]"
-    :look-at="[0, 0, 0]"
-  />
-  <TresGridHelper
-    :key="gridColor"
-    :position="[0, -0.02, 0]"
-    :args="[5.5, 16, gridColor, gridColor]"
-  />
-  <TresMesh :geometry="fillGeometry" :position="[0, -0.01, 0]">
-    <TresMeshBasicMaterial :color="fillColor" :side="2" />
-  </TresMesh>
-
-  <TresMesh
-    :geometry="fillGeometry"
-    :position="[0, -0.005, 0]"
-    v-if="showTriangles"
-  >
-    <TresMeshBasicMaterial :color="edgeColor" :wireframe="true" />
-  </TresMesh>
-</template>
-
-...
-
-const fillGeometry = computed(() => {
-  const geo = new BufferGeometry();
-  geo.setAttribute("position", positions.value);
-  geo.setIndex(indices.value);
-  return geo;
+  return new BufferAttribute(pos, 3);
 });`;
+
+const whiteney = `
+const props = withDefaults(
+  defineProps<{
+    size?: number;
+    segments?: number;
+    u: number;
+    v: number;
+    angle: number;
+    showFill: Boolean;
+  }>(),
+  { size: 4, segments: 24 },
+);
+
+const thetaRad = computed(
+  () => (Math.min(Math.max(props.angle, 1), 170) * Math.PI) / 180,
+);
+
+const positions = computed(() => {
+  const n = props.segments;
+  const pos = new Float32Array((n + 1) * (n + 1) * 3);
+
+  const half = thetaRad.value / 2;
+  const t = Math.tan(half);
+  const base = half + (45 * Math.PI) / 180;
+
+  for (let row = 0; row <= n; row++) {
+    for (let col = 0; col <= n; col++) {
+      const u = props.u * (-1 + (2 * col) / n);
+      const vNorm = -1 + (2 * row) / n; // -1 … 1
+      const v = props.v * vNorm;
+
+      const psi = Math.atan(t * vNorm) + base;
+
+      const k = (row * (n + 1) + col) * 3;
+      pos[k] = u * Math.sin(psi); // x
+      pos[k + 1] = v * v; // y
+      pos[k + 2] = u * Math.cos(psi); // z
+    }
+  }
+  return new BufferAttribute(pos, 3);
+});`;
+
+const templates = `
+  <TresMesh :geometry="surfaceGeometry" v-if="showFill">
+    <TresMeshBasicMaterial
+      :color="frontColor"
+      :vertex-colors="true"
+      :side="FrontSide"
+      :polygon-offset="true"
+      :polygon-offset-factor="1"
+      :polygon-offset-units="1"
+    />
+  </TresMesh>
+
+  <TresMesh :geometry="surfaceGeometry" v-if="showFill">
+    <TresMeshBasicMaterial
+      :color="backColor"
+      :vertex-colors="true"
+      :side="BackSide"
+      :polygon-offset="true"
+      :polygon-offset-factor="1"
+      :polygon-offset-units="1"
+    />
+  </TresMesh>
+
+  <TresLineSegments :geometry="lineGeometry">
+    <TresLineBasicMaterial :color="edgeColor" />
+  </TresLineSegments>`;
 </script>
 
 <style scoped>
