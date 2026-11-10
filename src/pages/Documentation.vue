@@ -211,29 +211,37 @@
       <v-table>
         <thead>
           <tr>
+            <th class="text-left">Slider</th>
             <th class="text-left">Parameter</th>
-            <th class="text-left">Bedeutung</th>
+            <th class="text-left">Bereich (Slider)</th>
             <th class="text-left">Wirkung</th>
           </tr>
         </thead>
         <tbody>
           <tr>
+            <td>Width</td>
             <td>U (Prop <code>u</code>)</td>
-            <td>halbe Länge jeder Zeile</td>
-            <td>Breite der Flügel 2U, unabhängig vom Winkel</td>
+            <td>[0,1; 3], Schritt 0,1</td>
+            <td>u ∈ [−U, U], Zeilenlänge 2U, also Breite 0,2 bis 6</td>
           </tr>
           <tr>
+            <td>Height</td>
             <td>V (Prop <code>v</code>)</td>
-            <td>Parameterbereich in Höhenrichtung</td>
-            <td>Höhe der obersten Zeilen V² (wächst quadratisch)</td>
+            <td>[0,1; 3], Schritt 0,1</td>
+            <td>v ∈ [−V, V], Höhe der obersten Zeilen V², also 0,01 bis 9</td>
           </tr>
           <tr>
+            <td>Angle</td>
             <td>θ (Prop <code>angle</code>)</td>
-            <td>Öffnungswinkel zwischen den beiden Randkanten</td>
-            <td>Slider 10° bis 170°, im Code auf [1°, 170°] begrenzt</td>
+            <td>[10°; 170°], Schritt 1°</td>
+            <td>Öffnungswinkel zwischen den Randkanten</td>
           </tr>
         </tbody>
       </v-table>
+      <p>
+        Die Startwerte sind <code>U=1.9</code>, <code>V=1.3</code> und
+        <code>θ=110</code>.
+      </p>
       <h4 class="text-lg font-bold mb-2 mt-6">Grenzen</h4>
       <p>
         Für θ → 180° geht tan(θ/2) gegen unendlich. Der Winkel ψ springt dann
