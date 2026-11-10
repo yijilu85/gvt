@@ -183,7 +183,7 @@
        {{ kidney }}
       </pre>
       <h3 class="text-xl font-bold mb-2 mt-8">
-        Whitney Umbrella – modifiziert
+        Whitney Umbrella – modifiziert (eigene Kreation)
       </h3>
       <p>
         Ausgangspunkt ist der <code>Whitney Umbrella</code> (<a
