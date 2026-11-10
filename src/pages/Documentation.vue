@@ -77,6 +77,17 @@
         Das Hosting und Deployment erfolgt über Github Pages, die CI/CD-Pipeline
         wird mit Github Actions umgesetzt.
       </p>
+      <p>
+        Zur Konsultation und Hilfe beim Übersetzen der Formeln sowie eigenen
+        Parametrisierung wurde
+        <a
+          href="https://claude.ai/"
+          target="_blank"
+          class="text-primary underline"
+          >Claude AI</a
+        >
+        als KI Tool eingesetzt.
+      </p>
     </article>
     <article>
       <h2 class="text-2xl font-bold mb-4">Implementation</h2>
@@ -88,18 +99,36 @@
       <pre class="doc-code-block"><strong>Control Component</strong>
        {{ control }}
       </pre>
+      <h3 class="text-xl font-bold mb-2 mt-8">Koordinatensystem</h3>
       <p>
-        Es werden 3 Formen dargestellt: <code>Kidney Surface</code>,
-        <code>Bohemian Dome</code> und ein modifizierter
-        <code>Whitney Umbrella</code>. Dafür werden jeweils für die Vorderseite
-        ein blauer Farbverlauf und für die Rückseite ein lila Farbverlauf
-        gewählt.
+        In allen Flächen zeigt in der Szene die y-Achse nach oben. Die Formeln
+        aus der Quelle verwenden z als Höhenachse, deshalb werden die Achsen
+        vertauscht:
+      </p>
+      <h3 class="text-xl font-bold mb-2 mt-8">
+        Farbverlauf der Flächen und Wireframe
+      </h3>
+      <p>
+        Jeder Vertex erhält einen Helligkeitswert zwischen 0,25 (unterster
+        Punkt) und 1,0 (oberster Punkt), berechnet aus seiner Höhe (Vertex
+        Colors). Dieser Wert wird mit der Materialfarbe multipliziert:
+        <code>#8EC5FF</code> auf der Vorderseite (hellblau nach dunkelblau) und
+        <code>#D9B8FF</code> auf der Rückseite (helllila nach dunkellila). Dafür
+        wird dieselbe Geometrie zweimal gerendert, einmal mit
+        <code>FrontSide</code> und einmal mit <code>BackSide</code>. Die Linien
+        sind <code>LineSegments</code> entlang der Gitterkanten (ohne
+        Diagonalen) und bleiben auch bei ausgeblendeter Füllung sichtbar. Bei
+        den geschlossenen Flächen ist nur die Außenseite sichtbar, die Rückseite
+        wird erst bei den offenen Flächen sichtbar.
       </p>
       <pre
         class="doc-code-block"
       ><strong>Rendering von Vorderseite, Rückseite und Wireframe</strong>
        {{ templates }}
       </pre>
+      <h3 class="text-xl font-bold mb-2 mt-8">
+        Feste parametrisierte Formen Kidney Surface und Bohemian Dome
+      </h3>
       <p>
         Die Formen <code>Kidney Surface</code> und
         <code>Bohemian Dome</code> haben jeweils feste Parameter und werden mit
@@ -153,38 +182,69 @@
       <pre class="doc-code-block"><strong>Kidney Surface</strong>
        {{ kidney }}
       </pre>
+      <h3 class="text-xl font-bold mb-2 mt-8">
+        Whitney Umbrella – modifiziert
+      </h3>
       <p>
-        Die modifizierte Fläche <code>Whitney Umbrella</code> hat dynamische
-        Parameter. Der Angle Parameter steuert den Öffnungswinkel, an dem die
-        beiden Flügel sich in der Mitte schneiden.
+        Ausgangspunkt ist der <code>Whitney Umbrella</code> (<a
+          href="http://www.3d-meier.de/tut3/Seite22.html"
+          target="_blank"
+          class="text-primary underline"
+          >http://www.3d-meier.de/tut3/Seite22.html</a
+        >) mit den Gleichungen <code>x = u·v</code>, <code>y = u</code>,
+        <code>z = v²</code> und <code>u, v ∈ [−1,5; 1,5]</code>. Die Fläche ist
+        eine Regelfläche: Für festes v ist sie eine Gerade in Richtung (v, 1, 0)
+        durch die Schirmachse. Entlang der Achse durchdringt sich die Fläche
+        selbst (Doppellinie), im Ursprung liegt der Pinch Point.
       </p>
+      <p>
+        Im Original lässt sich der Öffnungswinkel nicht steuern. Die
+        <strong>eigene Variante</strong> ersetzt deshalb die Parametrisierung
+        durch eine Richtungsparametrisierung: Jede Zeile ist eine Gerade durch
+        die Schirmachse in der Höhe v² mit einer Richtung ψ(v) in der
+        Horizontalebene. Der Parameter <code>angle</code> legt fest, wie weit
+        sich diese Richtungen auffächern.
+      </p>
+      <pre class="doc-code-block"><strong>Eigene Parametrisierung</strong>
+{{ whiteneyCustom }}
+        </pre>
       <v-table>
         <thead>
           <tr>
-            <th class="text-left">Fläche</th>
-            <th class="text-left">U</th>
-            <th class="text-left">V</th>
-            <th class="text-left">Angle</th>
-            <th class="text-left">Quelle</th>
+            <th class="text-left">Parameter</th>
+            <th class="text-left">Bedeutung</th>
+            <th class="text-left">Wirkung</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td>Modifizierter Whitney Umrella</td>
-            <td>u = props.u * (-1 + 2 * col / n)</td>
-            <td>v= props.v * vNorm → y = v * v</td>
-            <td>[10°, 170°]</td>
-            <td>
-              <a
-                href="http://www.3d-meier.de/tut3/Seite22.html"
-                target="_blank"
-                class="text-primary underline"
-                >http://www.3d-meier.de/tut3/Seite22.html</a
-              >
-            </td>
+            <td>U (Prop <code>u</code>)</td>
+            <td>halbe Länge jeder Zeile</td>
+            <td>Breite der Flügel 2U, unabhängig vom Winkel</td>
+          </tr>
+          <tr>
+            <td>V (Prop <code>v</code>)</td>
+            <td>Parameterbereich in Höhenrichtung</td>
+            <td>Höhe der obersten Zeilen V² (wächst quadratisch)</td>
+          </tr>
+          <tr>
+            <td>θ (Prop <code>angle</code>)</td>
+            <td>Öffnungswinkel zwischen den beiden Randkanten</td>
+            <td>Slider 10° bis 170°, im Code auf [1°, 170°] begrenzt</td>
           </tr>
         </tbody>
       </v-table>
+      <h4 class="text-lg font-bold mb-2 mt-6">Grenzen</h4>
+      <p>
+        Für θ → 180° geht tan(θ/2) gegen unendlich. Der Winkel ψ springt dann
+        nahe v = 0 fast sprunghaft von einem Ende zum anderen. Bei 24 Zeilen
+        liegt nur die mittlere Zeile in diesem Übergang, wodurch sich ein
+        flaches Dreieck am Boden um den Pinch Point bildet. Deshalb ist θ auf
+        170° begrenzt. Wie das Original ist die Fläche nicht abwickelbar, die
+        Gitterzellen werden also verzerrt. Sie ist keine exakte Lösung der
+        Whitney-Gleichung, behält aber die Struktur: gerade Zeilen,
+        Selbstdurchdringung entlang der Achse und den Pinch Point im Ursprung.
+      </p>
       <pre
         class="doc-code-block"
       ><strong>Modifizierter Whitney Umbrella</strong>
@@ -204,7 +264,7 @@ const control = `
   </div>
 
  <TresCanvas class="tres-canvas" :clear-color="backgroundColor" window-size>
-    <SheetGenerator
+    <WhitneyUmbrella
       :u="u"
       :v="v"
       :angle="angle"
@@ -302,6 +362,14 @@ const positions = computed(() => {
   return new BufferAttribute(pos, 3);
 });`;
 
+const whiteneyCustom = `
+u ∈ [−U, U],  v ∈ [−V, V],  θ = angle
+
+ψ(v) = arctan( tan(θ/2) · v / V ) + θ/2 + 45°
+
+x(u, v) = u · sin ψ(v)
+y(u, v) = v²
+z(u, v) = u · cos ψ(v)`;
 const whiteney = `
 const props = withDefaults(
   defineProps<{
@@ -336,9 +404,9 @@ const positions = computed(() => {
       const psi = Math.atan(t * vNorm) + base;
 
       const k = (row * (n + 1) + col) * 3;
-      pos[k] = u * Math.sin(psi); // x
-      pos[k + 1] = v * v; // y
-      pos[k + 2] = u * Math.cos(psi); // z
+      pos[k] = u * Math.sin(psi);
+      pos[k + 1] = v * v;
+      pos[k + 2] = u * Math.cos(psi);
     }
   }
   return new BufferAttribute(pos, 3);

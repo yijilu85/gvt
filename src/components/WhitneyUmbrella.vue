@@ -82,15 +82,15 @@ const positions = computed(() => {
   for (let row = 0; row <= n; row++) {
     for (let col = 0; col <= n; col++) {
       const u = props.u * (-1 + (2 * col) / n);
-      const vNorm = -1 + (2 * row) / n; // -1 … 1
+      const vNorm = -1 + (2 * row) / n;
       const v = props.v * vNorm;
 
       const psi = Math.atan(t * vNorm) + base;
 
       const k = (row * (n + 1) + col) * 3;
-      pos[k] = u * Math.sin(psi); // x
-      pos[k + 1] = v * v; // y
-      pos[k + 2] = u * Math.cos(psi); // z
+      pos[k] = u * Math.sin(psi);
+      pos[k + 1] = v * v;
+      pos[k + 2] = u * Math.cos(psi);
     }
   }
   return new BufferAttribute(pos, 3);
