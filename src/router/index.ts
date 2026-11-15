@@ -9,6 +9,7 @@ import { createRouter, createWebHistory } from "vue-router";
 import Index from "@/pages/index.vue";
 import Documentation from "@/pages/Documentation.vue";
 import ParametricSheet from "@/components/ParametricSheet.vue";
+import CameraScene from "@/components/CameraScene.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -16,10 +17,10 @@ const router = createRouter({
   routes: [
     {
       path: "/",
-      component: ParametricSheet,
+      component: CameraScene,
     },
     { path: "/documentation", component: Documentation },
-    { path: "/parametrized", component: ParametricSheet },
+    { path: "/camerascene", component: CameraScene },
   ],
 });
 
