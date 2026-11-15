@@ -7,9 +7,36 @@
       :cameraPosition="cameraPosition"
     />
   </TresCanvas>
+  <div class="control key-legend">
+    <span class="key-legend__title">Camera controls</span>
+
+    <div class="key-legend__group">
+      <div class="key-row">
+        <kbd class="key" :class="{ 'key--active': ArrowLeft }">←</kbd>
+        <kbd class="key" :class="{ 'key--active': ArrowUp }">↑</kbd>
+        <kbd class="key" :class="{ 'key--active': ArrowDown }">↓</kbd>
+        <kbd class="key" :class="{ 'key--active': ArrowRight }">→</kbd>
+      </div>
+      <span class="key-legend__label">orbit</span>
+    </div>
+
+    <div class="key-legend__group">
+      <kbd class="key" :class="{ 'key--active': n && !shift }">N</kbd>
+      <span class="key-legend__label">move in</span>
+    </div>
+
+    <div class="key-legend__group">
+      <kbd class="key" :class="{ 'key--active': shift }">Shift</kbd>
+      <span class="key-legend__label">+</span>
+      <kbd class="key" :class="{ 'key--active': n && shift }">N</kbd>
+      <span class="key-legend__label">move out</span>
+    </div>
+  </div>
   <div class="control flex flex-row gap-4 w-full justify-center mt-4">
-    <div class="control flex gap-4 w-full items-center justify-center mt-4">
-      <span class="w-1/3">Rekursionstiefe:</span>
+    <div
+      class="control flex gap-4 w-full items-center justify-center mt-4 w-1/2"
+    >
+      <span class="w-2/5">Recursion depth:</span>
       <v-slider
         v-model="recursionDepth"
         :min="0"
@@ -168,5 +195,74 @@ const backgroundColor = computed(() => {
 .toggle-switch .v-selection-control--dirty .v-switch__thumb {
   background-color: #757575 !important;
   color: #757575 !important;
+}
+
+.key-legend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem 2rem;
+  margin-top: 1rem;
+  font-size: 0.9rem;
+  color: rgb(var(--v-theme-on-surface));
+}
+.key-legend__title {
+  font-weight: 600;
+}
+
+.key-legend__group {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.key-legend__label {
+  opacity: 0.7;
+}
+
+/* Pfeiltasten in umgekehrter T-Anordnung */
+.key-row {
+  display: flex;
+  gap: 0.25rem;
+}
+
+/* Tastenkappe */
+.key {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2rem;
+  height: 2rem;
+  padding: 0 0.6rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.9rem;
+  font-weight: 600;
+  line-height: 1;
+  color: rgb(var(--v-theme-on-surface));
+  background: rgb(var(--v-theme-surface));
+  border: 1px solid rgba(var(--v-border-color), 0.4);
+  border-radius: 0.4rem;
+  box-shadow: 0 2px 0 rgba(var(--v-border-color), 0.4);
+  user-select: none;
+  transition:
+    transform 0.05s,
+    box-shadow 0.05s,
+    background-color 0.1s;
+}
+
+/* gedrückt: Taste sinkt ein und wird hervorgehoben */
+.key--active {
+  transform: translateY(2px);
+  box-shadow: 0 0 0 rgba(var(--v-border-color), 0.4);
+  background: rgb(var(--v-theme-primary));
+  border-color: rgb(var(--v-theme-primary));
+  color: rgb(var(--v-theme-on-primary));
+}
+
+/* auf Touch-Geräten gibt es keine Tastatur */
+@media (hover: none) {
+  .key-legend {
+    display: none;
+  }
 }
 </style>

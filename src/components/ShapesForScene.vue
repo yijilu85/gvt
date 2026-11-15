@@ -343,11 +343,11 @@ const pyramid = computed<Geometries>(() => {
   const tip = "#FFEDD5"; // Spitze: hell, gilt für alle Seitenflächen
 
   return buildFaces([
-    { from: "#F97316", to: tip, verts: [p3, p2, apex] }, // +z
-    { from: "#EA580C", to: tip, verts: [p2, p1, apex] }, // +x
-    { from: "#C2410C", to: tip, verts: [p1, p0, apex] }, // −z
-    { from: "#9A3412", to: tip, verts: [p0, p3, apex] }, // −x
-    { from: "#431407", to: "#7C2D12", verts: [p0, p1, p2, p3] }, // Basis
+    { from: "#9D174D", to: "#F9A8D4", verts: [p3, p2, apex] }, // +z pink
+    { from: "#155E75", to: "#67E8F9", verts: [p2, p1, apex] }, // +x türkis
+    { from: "#3F6212", to: "#BEF264", verts: [p1, p0, apex] }, // −z limette
+    { from: "#3730A3", to: "#A5B4FC", verts: [p0, p3, apex] }, // −x indigo
+    { from: "#1E293B", to: "#64748B", verts: [p0, p1, p2, p3] }, // Basis grau
   ]);
 });
 
