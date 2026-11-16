@@ -8,7 +8,7 @@
     />
   </TresCanvas>
   <div class="control key-legend">
-    <span class="key-legend__title">Camera controls</span>
+    <span class="key-legend__title">Kamerasteuerung</span>
 
     <div class="key-legend__group">
       <div class="key-row">
@@ -17,26 +17,26 @@
         <kbd class="key" :class="{ 'key--active': ArrowDown }">↓</kbd>
         <kbd class="key" :class="{ 'key--active': ArrowRight }">→</kbd>
       </div>
-      <span class="key-legend__label">orbit</span>
+      <span class="key-legend__label">Rotation</span>
     </div>
 
     <div class="key-legend__group">
       <kbd class="key" :class="{ 'key--active': n && !shift }">N</kbd>
-      <span class="key-legend__label">move in</span>
+      <span class="key-legend__label">Rein</span>
     </div>
 
     <div class="key-legend__group">
       <kbd class="key" :class="{ 'key--active': shift }">Shift</kbd>
       <span class="key-legend__label">+</span>
       <kbd class="key" :class="{ 'key--active': n && shift }">N</kbd>
-      <span class="key-legend__label">move out</span>
+      <span class="key-legend__label">Raus</span>
     </div>
   </div>
   <div class="control flex flex-row gap-4 w-full justify-center mt-4">
     <div
       class="control flex gap-4 w-full items-center justify-center mt-4 w-1/2"
     >
-      <span class="w-2/5">Recursion depth:</span>
+      <span class="w-2/5">Rekursionstiefe:</span>
       <v-slider
         v-model="recursionDepth"
         :min="0"
@@ -49,7 +49,7 @@
     <div
       class="control flex gap-4 w-full items-center justify-center mt-4 w-1/4"
     >
-      <span class="w-1/3">Show fill:</span>
+      <span class="w-1/3">Farbflächen:</span>
       <v-switch
         v-model="showFill"
         hide-details
@@ -60,7 +60,7 @@
     <div
       class="control flex gap-4 w-full items-center justify-center mt-4 w-1/4"
     >
-      <span class="w-1/3">Show edges:</span>
+      <span class="w-1/3">Kanten:</span>
       <v-switch
         v-model="showEdges"
         hide-details
