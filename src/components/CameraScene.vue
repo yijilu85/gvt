@@ -173,11 +173,10 @@ const backgroundColor = computed(() => {
   }
 }
 
-/* aus: Track und Knopf weiß */
 .toggle-switch .v-switch__track {
   background-color: #ffffff !important;
   opacity: 1 !important;
-  box-shadow: inset 0 0 0 1px #bdbdbd; /* Rand, damit der Track auf hellem Grund sichtbar bleibt */
+  box-shadow: inset 0 0 0 1px #bdbdbd;
 }
 .toggle-switch .v-switch__thumb {
   background-color: #ffffff !important;
@@ -187,7 +186,6 @@ const backgroundColor = computed(() => {
     0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
-/* an: Track und Knopf grau */
 .toggle-switch .v-selection-control--dirty .v-switch__track {
   background-color: #bdbdbd !important;
   box-shadow: none;
@@ -220,13 +218,11 @@ const backgroundColor = computed(() => {
   opacity: 0.7;
 }
 
-/* Pfeiltasten in umgekehrter T-Anordnung */
 .key-row {
   display: flex;
   gap: 0.25rem;
 }
 
-/* Tastenkappe */
 .key {
   display: inline-flex;
   align-items: center;
@@ -250,7 +246,6 @@ const backgroundColor = computed(() => {
     background-color 0.1s;
 }
 
-/* gedrückt: Taste sinkt ein und wird hervorgehoben */
 .key--active {
   transform: translateY(2px);
   box-shadow: 0 0 0 rgba(var(--v-border-color), 0.4);
@@ -259,7 +254,6 @@ const backgroundColor = computed(() => {
   color: rgb(var(--v-theme-on-primary));
 }
 
-/* auf Touch-Geräten gibt es keine Tastatur */
 @media (hover: none) {
   .key-legend {
     display: none;
