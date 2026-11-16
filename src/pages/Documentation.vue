@@ -92,360 +92,303 @@
     <article>
       <h2 class="text-2xl font-bold mb-4">Implementation</h2>
       <p>
-        Die zentrale Komponente <code>ParametricSheet.vue</code> ist für das
-        Rendern der parametrisierten Fläche zuständig. Sie steuert das Toggle
-        der Form und das Rendering der Control-Slider.
+        Die zentrale Komponente <code>ShapesForScene.vue</code> ist für die
+        Objektgenerierung und das Rendering der Szene zuständig. Es werden ein
+        Würfel und eine Pryramide als zwei feste Grundformen sowie eine
+        parametrisierte Kugel mit dynamischer Rekursionstiefe generiert. Es wird
+        eine generalisierte Methode <code>buildFaces</code> definiert, die für
+        jedes Objekt aufgerufen wird.
       </p>
-      <pre class="doc-code-block"><strong>Control Component</strong>
-       {{ control }}
+      <h3 class="text-xl font-bold mb-2 mt-8">Objektgenerierung</h3>
+
+      <p>
+        <code>buildFaces</code> erzeugt aus einer Liste von Polygonflächen die
+        Geometrie für ein Objekt. Jede Fläche wird durch zwei Farben
+        (<code>from</code>, <code>to</code>) und ihre Eckpunkte
+        (<code>verts</code>) beschrieben. Die Eckpunkte müssen von außen gesehen
+        gegen den Uhrzeigersinn angegeben werden, damit die Vorderseite nach
+        außen zeigt.
+      </p>
+      <pre class="doc-code-block"><strong>buildFaces</strong>
+       {{ buildFaces }}
       </pre>
-      <h3 class="text-xl font-bold mb-2 mt-8">Koordinatensystem</h3>
-      <p>
-        In allen Flächen zeigt in der Szene die y-Achse nach oben. Die Formeln
-        aus der Quelle verwenden z als Höhenachse, deshalb werden die Achsen
-        vertauscht:
-      </p>
-      <h3 class="text-xl font-bold mb-2 mt-8">
-        Farbverlauf der Flächen und Wireframe
-      </h3>
-      <p>
-        Jeder Vertex erhält einen Helligkeitswert zwischen 0,25 (unterster
-        Punkt) und 1,0 (oberster Punkt), berechnet aus seiner Höhe (Vertex
-        Colors). Dieser Wert wird mit der Materialfarbe multipliziert:
-        <code>#8EC5FF</code> auf der Vorderseite (hellblau nach dunkelblau) und
-        <code>#D9B8FF</code> auf der Rückseite (helllila nach dunkellila). Dafür
-        wird dieselbe Geometrie zweimal gerendert, einmal mit
-        <code>FrontSide</code> und einmal mit <code>BackSide</code>. Die Linien
-        sind <code>LineSegments</code> entlang der Gitterkanten (ohne
-        Diagonalen) und bleiben auch bei ausgeblendeter Füllung sichtbar. Bei
-        den geschlossenen Flächen ist nur die Außenseite sichtbar, die Rückseite
-        wird erst bei den offenen Flächen sichtbar.
-      </p>
-      <pre
-        class="doc-code-block"
-      ><strong>Rendering von Vorderseite, Rückseite und Wireframe</strong>
-       {{ templates }}
+      <pre class="doc-code-block"><strong>Würfel</strong>
+       {{ cube }}
       </pre>
-      <h3 class="text-xl font-bold mb-2 mt-8">
-        Feste parametrisierte Formen Kidney Surface und Bohemian Dome
-      </h3>
-      <p>
-        Die Formen <code>Kidney Surface</code> und
-        <code>Bohemian Dome</code> haben jeweils feste Parameter und werden mit
-        jeweils mit einer Auflösung von <code>uSegments: 32</code> und
-        <code>vSegments: 64</code> initialisiert.
-      </p>
-      <v-table>
-        <thead>
-          <tr>
-            <th class="text-left">Fläche</th>
-            <th class="text-left">U</th>
-            <th class="text-left">V</th>
-            <th class="text-left">Konstanten</th>
-            <th class="text-left">Quelle</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>Bohemian Dome</td>
-            <td>[0, 2π]</td>
-            <td>[0, 2π]</td>
-            <td>a= 0.8<br />b= 1.4<br />c= 1.1</td>
-            <td>
-              <a
-                href="http://www.3d-meier.de/tut3/Seite5.html"
-                target="_blank"
-                class="text-primary underline"
-                >http://www.3d-meier.de/tut3/Seite5.html</a
-              >
-            </td>
-          </tr>
-          <tr>
-            <td>Kidney Surface</td>
-            <td>[0, 2π]</td>
-            <td>[−π/2, π/2]</td>
-            <td></td>
-            <td>
-              <a
-                href="http://www.3d-meier.de/tut3/Seite42.html"
-                target="_blank"
-                class="text-primary underline"
-                >http://www.3d-meier.de/tut3/Seite42.html</a
-              >
-            </td>
-          </tr>
-        </tbody>
-      </v-table>
-      <pre class="doc-code-block"><strong>Bohemian Dome</strong>
-       {{ bohemian }}
+      <pre class="doc-code-block"><strong>Pyramide</strong>
+       {{ pyramid }}
       </pre>
-      <pre class="doc-code-block"><strong>Kidney Surface</strong>
-       {{ kidney }}
+      <p>
+        Für die rekursive Kugelgenerierung wird ein Oktaeder als Ausgangsform
+        verwendet, jeder seiner Flächen in 4 Dreiecke geteilt und die neuen
+        Vertices auf den Radius normalisiert. Ein dynamischer Parameter
+        <code>recursionDepth</code> steuert die Tiefe der Rekursion, d.h.
+        steuert die Rundheit der Kugel.
+      </p>
+      <pre class="doc-code-block"><strong>Rekursive Kugelgenerierung</strong>
+       {{ sphere }}
       </pre>
-      <h3 class="text-xl font-bold mb-2 mt-8">
-        Whitney Umbrella – modifiziert (eigene Kreation)
-      </h3>
+      <h3 class="text-xl font-bold mb-2 mt-8">Kamerasteuerung</h3>
       <p>
-        Ausgangspunkt ist der <code>Whitney Umbrella</code> (<a
-          href="http://www.3d-meier.de/tut3/Seite22.html"
-          target="_blank"
-          class="text-primary underline"
-          >http://www.3d-meier.de/tut3/Seite22.html</a
-        >) mit den Gleichungen <code>x = u·v</code>, <code>y = u</code>,
-        <code>z = v²</code> und <code>u, v ∈ [−1,5; 1,5]</code>. Die Fläche ist
-        eine Regelfläche: Für festes v ist sie eine Gerade in Richtung (v, 1, 0)
-        durch die Schirmachse. Entlang der Achse durchdringt sich die Fläche
-        selbst (Doppellinie), im Ursprung liegt der Pinch Point.
+        Die Kamerasteuerung erfolgt maßgeblich in der Komponente
+        <code>CameraScene.vue</code>. Hierfür werden drei Werte
+        <code>azimut</code> (horizontal), <code>altitude</code>(vertikal) und
+        <code>radius</code> (Distanz) mit Default-Werten initialisiert und durch
+        Benutzerinteraktion verändert. Die Pfeiltasten ändern den Winkel je um
+        5° in eine Richtung und den Radius um Schritt 1. Anhand der drei Werte
+        wird eine Position auf einem Orbit um die Szene herum mit
+        <code>x</code>, <code>y</code> und <code>z</code> Koordinaten berechnet.
       </p>
+
+      <pre class="doc-code-block"><strong>Kamerasteuerung</strong>
+       {{ cameraControl }}
+      </pre>
       <p>
-        Im Original lässt sich der Öffnungswinkel nicht steuern. Die
-        <strong>eigene Variante</strong> ersetzt deshalb die Parametrisierung
-        durch eine Richtungsparametrisierung: Jede Zeile ist eine Gerade durch
-        die Schirmachse in der Höhe v² mit einer Richtung ψ(v) in der
-        Horizontalebene. Der Parameter <code>angle</code> legt fest, wie weit
-        sich diese Richtungen auffächern.
+        Die Rendering-Komponente erhält immer nur die berechneten Koordinaten
+        und positioniert die Kamera dort mit Blick auf den Ursprung.
       </p>
-      <pre class="doc-code-block"><strong>Eigene Parametrisierung</strong>
-{{ whiteneyCustom }}
-        </pre>
-      <v-table>
-        <thead>
-          <tr>
-            <th class="text-left">Slider</th>
-            <th class="text-left">Parameter</th>
-            <th class="text-left">Bereich (Slider)</th>
-            <th class="text-left">Wirkung</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>Width</td>
-            <td>U (Prop <code>u</code>)</td>
-            <td>[0,1; 3], Schritt 0,1</td>
-            <td>u ∈ [−U, U], Zeilenlänge 2U, also Breite 0,2 bis 6</td>
-          </tr>
-          <tr>
-            <td>Height</td>
-            <td>V (Prop <code>v</code>)</td>
-            <td>[0,1; 3], Schritt 0,1</td>
-            <td>v ∈ [−V, V], Höhe der obersten Zeilen V², also 0,01 bis 9</td>
-          </tr>
-          <tr>
-            <td>Angle</td>
-            <td>θ (Prop <code>angle</code>)</td>
-            <td>[10°; 170°], Schritt 1°</td>
-            <td>Öffnungswinkel zwischen den Randkanten</td>
-          </tr>
-        </tbody>
-      </v-table>
-      <p>
-        Die Startwerte sind <code>U=1.9</code>, <code>V=1.3</code> und
-        <code>θ=110</code>.
-      </p>
-      <h4 class="text-lg font-bold mb-2 mt-6">Grenzen</h4>
-      <p>
-        Für θ → 180° geht tan(θ/2) gegen unendlich. Der Winkel ψ springt dann
-        nahe v = 0 fast sprunghaft von einem Ende zum anderen. Bei 24 Zeilen
-        liegt nur die mittlere Zeile in diesem Übergang, wodurch sich ein
-        flaches Dreieck am Boden um den Pinch Point bildet. Deshalb ist θ auf
-        170° begrenzt. Wie das Original ist die Fläche nicht abwickelbar, die
-        Gitterzellen werden also verzerrt. Sie ist keine exakte Lösung der
-        Whitney-Gleichung, behält aber die Struktur: gerade Zeilen,
-        Selbstdurchdringung entlang der Achse und den Pinch Point im Ursprung.
-      </p>
-      <pre
-        class="doc-code-block"
-      ><strong>Modifizierter Whitney Umbrella</strong>
-       {{ whiteney }}
+      <pre class="doc-code-block"><strong>Kamerapositionierung</strong>
+       {{ cameraPos }}
       </pre>
     </article>
   </div>
 </template>
 
 <script lang="ts" setup>
-const control = `
-  <div class="control flex justify-center">
-    <v-btn @click="incrementCurrentShapeIndex"> Next Shape </v-btn>
-  </div>
-  <div class="control flex justify-center mt-8 text-xl">
-    {{ currentShape.label }}
-  </div>
+const cameraControl = `
+const azimuth = ref(0);
+const altitude = ref(15);
+const radius = ref(10);
 
- <TresCanvas class="tres-canvas" :clear-color="backgroundColor" window-size>
-    <WhitneyUmbrella
-      :u="u"
-      :v="v"
-      :angle="angle"
-      :showFill="showFill"
-      v-if="isCurrentShape('umbrella')"
-    />
-    <Kidney :showFill="showFill" v-if="isCurrentShape('kidney')" />
-    <BohemianDome :showFill="showFill" v-if="isCurrentShape('bohemian')" />
-  </TresCanvas>
+const ANGLE_STEP = 5;
+const RADIUS_STEP = 1;
 
-  const shapes = ref([
-  { id: "kidney", label: "Kidney Surface", sliders: false },
-  { id: "bohemian", label: "Bohemian Dome", sliders: false },
-  { id: "umbrella", label: "Whitney Umbrella – modifiziert", sliders: true },
+const clamp = (value: number, min: number, max: number) => {
+  return Math.min(Math.max(value, min), max);
+};
+
+whenever(ArrowUp, () => {
+  moveCameraUp();
+});
+whenever(ArrowDown, () => {
+  moveCameraDown();
+});
+whenever(ArrowLeft, () => {
+  moveCameraLeft();
+});
+whenever(ArrowRight, () => {
+  moveCameraRight();
+});
+
+onKeyStroke(["n", "N"], (e) => {
+  if (e.shiftKey) moveCameraAway();
+  else moveCameraCloser();
+});
+
+const moveCameraLeft = () => {
+  azimuth.value = (azimuth.value - ANGLE_STEP + 360) % 360;
+};
+const moveCameraRight = () => {
+  azimuth.value = (azimuth.value + ANGLE_STEP) % 360;
+};
+const moveCameraUp = () => {
+  altitude.value = clamp(altitude.value + ANGLE_STEP, -85, 85);
+};
+const moveCameraDown = () => {
+  altitude.value = clamp(altitude.value - ANGLE_STEP, -85, 85);
+};
+const moveCameraAway = () => {
+  radius.value = clamp(radius.value + RADIUS_STEP, 3, 30);
+};
+const moveCameraCloser = () => {
+  radius.value = clamp(radius.value - RADIUS_STEP, 3, 30);
+};
+
+const cameraPosition = computed(() => {
+  const az = (azimuth.value * Math.PI) / 180;
+  const alt = (altitude.value * Math.PI) / 180;
+  return {
+    x: radius.value * Math.cos(alt) * Math.sin(az),
+    y: radius.value * Math.sin(alt),
+    z: radius.value * Math.cos(alt) * Math.cos(az),
+  };
+});
+`;
+
+const cube = `
+const cube = computed<Geometries>(() => {
+  const h = 0.75 * unit.value;
+  return buildFaces([
+    {
+      from: "#991B1B",
+      to: "#FCA5A5",
+      verts: [
+        [h, -h, h],
+        [h, -h, -h],
+        [h, h, -h],
+        [h, h, h],
+      ],
+    },
+    {
+      from: "#9A3412",
+      to: "#FDBA74",
+      verts: [
+        [-h, -h, -h],
+        [-h, -h, h],
+        [-h, h, h],
+        [-h, h, -h],
+      ],
+    },
+    {
+      from: "#A16207",
+      to: "#FDE047",
+      verts: [
+        [-h, h, h],
+        [h, h, h],
+        [h, h, -h],
+        [-h, h, -h],
+      ],
+    },
+    {
+      from: "#166534",
+      to: "#86EFAC",
+      verts: [
+        [-h, -h, -h],
+        [h, -h, -h],
+        [h, -h, h],
+        [-h, -h, h],
+      ],
+    },
+    {
+      from: "#1E40AF",
+      to: "#93C5FD",
+      verts: [
+        [-h, -h, h],
+        [h, -h, h],
+        [h, h, h],
+        [-h, h, h],
+      ],
+    },
+    {
+      from: "#6B21A8",
+      to: "#D8B4FE",
+      verts: [
+        [h, -h, -h],
+        [-h, -h, -h],
+        [-h, h, -h],
+        [h, h, -h],
+      ],
+    },
+  ]);
+});`;
+
+const pyramid = `
+const pyramid = computed<Geometries>(() => {
+  const b = 0.75 * unit.value;
+  const h = 0.75 * unit.value;
+
+  const p0: [number, number, number] = [-b, -h, -b];
+  const p1: [number, number, number] = [b, -h, -b];
+  const p2: [number, number, number] = [b, -h, b];
+  const p3: [number, number, number] = [-b, -h, b];
+  const apex: [number, number, number] = [0, h, 0];
+
+  const tip = "#FFEDD5";
+
+  return buildFaces([
+    { from: "#9D174D", to: "#F9A8D4", verts: [p3, p2, apex] },
+    { from: "#155E75", to: "#67E8F9", verts: [p2, p1, apex] },
+    { from: "#3F6212", to: "#BEF264", verts: [p1, p0, apex] },
+    { from: "#3730A3", to: "#A5B4FC", verts: [p0, p3, apex] },
+    { from: "#1E293B", to: "#64748B", verts: [p0, p1, p2, p3] },
+  ]);
+});`;
+
+const sphere = `
+const sphere = computed<Geometries>(() => {
+  const depth = Math.min(Math.max(Math.round(props.recursionDepth), 0), 6);
+  const radius = unit.value;
+
+  const verts: number[] = [];
+  const cache = new Map<string, number>();
+
+  const addVertex = (x: number, y: number, z: number) => {
+    const len = Math.hypot(x, y, z);
+    verts.push(x / len, y / len, z / len);
+    return verts.length / 3 - 1;
+  };
+
+  const midpoint = (a: number, b: number) => {
+    const key = a < b ? "{a}_{b} : {b}_{a}";
+    const hit = cache.get(key);
+    if (hit !== undefined) return hit;
+    const i = addVertex(
+      (verts[a * 3] + verts[b * 3]) / 2,
+      (verts[a * 3 + 1] + verts[b * 3 + 1]) / 2,
+      (verts[a * 3 + 2] + verts[b * 3 + 2]) / 2,
+    );
+    cache.set(key, i);
+    return i;
+  };
+
+  const triangles: number[] = [];
+
+  const subdivide = (a: number, b: number, c: number, d: number) => {
+    if (d === 0) {
+      triangles.push(a, b, c);
+      return;
+    }
+    const ab = midpoint(a, b);
+    const bc = midpoint(b, c);
+    const ca = midpoint(c, a);
+    subdivide(a, ab, ca, d - 1);
+    subdivide(b, bc, ab, d - 1);
+    subdivide(c, ca, bc, d - 1);
+    subdivide(ab, bc, ca, d - 1);
+  };`;
+
+const cameraPos = `
+const camPos = computed<[number, number, number]>(() => [
+  props.cameraPosition.x,
+  props.cameraPosition.y,
+  props.cameraPosition.z,
 ]);
 
-const currentShapeIndex = ref(0);
+const cameraRef = ref<PerspectiveCamera | null>(null);
 
-const incrementCurrentShapeIndex = () => {
-  if (currentShapeIndex.value < shapes.value.length - 1) {
-    currentShapeIndex.value++;
-  } else {
-    currentShapeIndex.value = 0;
+onBeforeRender(() => {
+  cameraRef.value?.lookAt(0, 0, 0);
+});`;
+
+const buildFaces = `
+  const buildFaces = (faces: Face[]): Geometries => {
+  const pos: number[] = [];
+  const col: number[] = [];
+  const tri: number[] = [];
+  const lineIdx: number[] = [];
+  const cFrom = new Color();
+  const cTo = new Color();
+  let offset = 0;
+
+  for (const face of faces) {
+    cFrom.set(face.from);
+    cTo.set(face.to);
+    face.verts.forEach((v, i) => {
+      const c = i < 2 ? cFrom : cTo;
+      pos.push(v[0], v[1], v[2]);
+      col.push(c.r, c.g, c.b);
+    });
+    const n = face.verts.length;
+    for (let i = 1; i < n - 1; i++) {
+      tri.push(offset, offset + i, offset + i + 1);
+    }
+    for (let i = 0; i < n; i++) {
+      lineIdx.push(offset + i, offset + ((i + 1) % n));
+    }
+    offset += n;
   }
+  return makeGeometries(pos, col, tri, lineIdx);
 };`;
-
-const bohemian = `
-const A = 0.8;
-const B = 1.4;
-const C = 1.1;
-const TWO_PI = 2 * Math.PI;
-const ROTATION = (-45 * Math.PI) / 180;
-
-const scale = computed(() => props.size / (2 * (A + B)));
-const height = computed(() => 2 * C * scale.value);
-
-const positions = computed(() => {
-  const nu = props.uSegments;
-  const nv = props.vSegments;
-  const stride = nu + 1;
-  const pos = new Float32Array(stride * (nv + 1) * 3);
-  const s = scale.value;
-
-  for (let row = 0; row <= nv; row++) {
-    const v = (TWO_PI * row) / nv;
-    const bCos = B * Math.cos(v);
-    const cSin = C * Math.sin(v);
-
-    for (let col = 0; col <= nu; col++) {
-      const u = (TWO_PI * col) / nu;
-
-      const fx = A * Math.cos(u);
-      const fy = bCos + A * Math.sin(u);
-      const fz = cSin;
-
-      const cosR = Math.cos(ROTATION);
-      const sinR = Math.sin(ROTATION);
-
-      const x0 = s * fy;
-      const z0 = s * fx;
-
-      const k = (row * stride + col) * 3;
-      pos[k] = x0 * cosR - z0 * sinR;
-      pos[k + 1] = s * (fz + C);
-      pos[k + 2] = x0 * sinR + z0 * cosR;
-    }
-  }
-  return new BufferAttribute(pos, 3);
-});`;
-
-const kidney = `
-const positions = computed(() => {
-  const nu = props.uSegments;
-  const nv = props.vSegments;
-  const stride = nu + 1;
-  const pos = new Float32Array(stride * (nv + 1) * 3);
-
-  const scale = props.size / 8;
-  const yOffset = props.size / 2;
-
-  for (let row = 0; row <= nv; row++) {
-    const v = -Math.PI / 2 + (Math.PI * row) / nv;
-    const r = 3 * Math.cos(v) - Math.cos(3 * v);
-    const h = 3 * Math.sin(v) - Math.sin(3 * v);
-
-    for (let col = 0; col <= nu; col++) {
-      const u = (2 * Math.PI * col) / nu;
-
-      const k = (row * stride + col) * 3;
-      pos[k] = scale * r * Math.cos(u);
-      pos[k + 1] = scale * h + yOffset;
-      pos[k + 2] = scale * r * Math.sin(u);
-    }
-  }
-  return new BufferAttribute(pos, 3);
-});`;
-
-const whiteneyCustom = `
-u ∈ [−U, U],  v ∈ [−V, V],  θ = angle
-
-ψ(v) = arctan( tan(θ/2) · v / V ) + θ/2 + 45°
-
-x(u, v) = u · sin ψ(v)
-y(u, v) = v²
-z(u, v) = u · cos ψ(v)`;
-const whiteney = `
-const props = withDefaults(
-  defineProps<{
-    size?: number;
-    segments?: number;
-    u: number;
-    v: number;
-    angle: number;
-    showFill: Boolean;
-  }>(),
-  { size: 4, segments: 24 },
-);
-
-const thetaRad = computed(
-  () => (Math.min(Math.max(props.angle, 1), 170) * Math.PI) / 180,
-);
-
-const positions = computed(() => {
-  const n = props.segments;
-  const pos = new Float32Array((n + 1) * (n + 1) * 3);
-
-  const half = thetaRad.value / 2;
-  const t = Math.tan(half);
-  const base = half + (45 * Math.PI) / 180;
-
-  for (let row = 0; row <= n; row++) {
-    for (let col = 0; col <= n; col++) {
-      const u = props.u * (-1 + (2 * col) / n);
-      const vNorm = -1 + (2 * row) / n; // -1 … 1
-      const v = props.v * vNorm;
-
-      const psi = Math.atan(t * vNorm) + base;
-
-      const k = (row * (n + 1) + col) * 3;
-      pos[k] = u * Math.sin(psi);
-      pos[k + 1] = v * v;
-      pos[k + 2] = u * Math.cos(psi);
-    }
-  }
-  return new BufferAttribute(pos, 3);
-});`;
-
-const templates = `
-  <TresMesh :geometry="surfaceGeometry" v-if="showFill">
-    <TresMeshBasicMaterial
-      :color="frontColor"
-      :vertex-colors="true"
-      :side="FrontSide"
-      :polygon-offset="true"
-      :polygon-offset-factor="1"
-      :polygon-offset-units="1"
-    />
-  </TresMesh>
-
-  <TresMesh :geometry="surfaceGeometry" v-if="showFill">
-    <TresMeshBasicMaterial
-      :color="backColor"
-      :vertex-colors="true"
-      :side="BackSide"
-      :polygon-offset="true"
-      :polygon-offset-factor="1"
-      :polygon-offset-units="1"
-    />
-  </TresMesh>
-
-  <TresLineSegments :geometry="lineGeometry">
-    <TresLineBasicMaterial :color="edgeColor" />
-  </TresLineSegments>`;
 </script>
 
 <style scoped>
