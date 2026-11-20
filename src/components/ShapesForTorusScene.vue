@@ -122,10 +122,9 @@ onBeforeRender(() => {
 // Kugel k erreicht das Zentrum genau dann, wenn θ = δ_k (bzw. δ_k + π),
 // also wenn die Lochachse in ihre Flugrichtung zeigt.
 //
-// Die Parameter unten sind numerisch geprüft (ganzer Umlauf, 0.05°-Schritte):
+// Die Bahnparameter sind numerisch über einen vollen Umlauf geprüft:
 //   kleinster Abstand Kugel–Torus  ≈ 0.47 · unit
 //   kleinster Abstand Kugel–Kugel  ≈ 0.73 · unit
-// Beim Ändern der Werte prüft verifyClearance() das im Dev-Modus erneut.
 const unit = computed(() => props.size / 4);
 const R = computed(() => 1.5 * unit.value); // großer Torusradius
 const r = computed(() => 0.4 * unit.value); // Rohrradius
@@ -159,8 +158,8 @@ type Vec3 = [number, number, number];
 const DEG = Math.PI / 180;
 
 // Position auf der Kreisbahn zum Torus-Winkel theta
-const onOrbit = (o: Orbit, theta: number, u: number): Vec3 => {
-  const rho = o.rho * u;
+const onOrbit = (o: Orbit, theta: number): Vec3 => {
+  const rho = o.rho * unit.value;
   const dl = o.delta * DEG;
   const g = o.gamma * DEG;
   // d: Flugrichtung im Zentrum, h: waagerecht senkrecht zu d
@@ -176,46 +175,8 @@ const onOrbit = (o: Orbit, theta: number, u: number): Vec3 => {
 };
 
 const balls = computed(() =>
-  orbits.map((o) => ({
-    id: o.id,
-    position: onOrbit(o, angle.value, unit.value),
-  })),
+  orbits.map((o) => ({ id: o.id, position: onOrbit(o, angle.value) })),
 );
-
-/* ------------------------------------------------------------------ */
-/* Kontrolle der Abstände (nur Dev-Modus)                             */
-/* ------------------------------------------------------------------ */
-const verifyClearance = () => {
-  // in unit = 1 rechnen, Ergebnis gilt für jede Größe
-  const Rv = 1.5,
-    rv = 0.4,
-    sv = 0.3;
-  let minTorus = Infinity;
-  let minBalls = Infinity;
-  const N = 3600;
-  for (let k = 0; k < N; k++) {
-    const th = (k / N) * Math.PI * 2;
-    const P = orbits.map((o) => onOrbit(o, th, 1));
-    for (const [x, y, z] of P) {
-      // Weltpunkt ins Torus-System zurückdrehen
-      const xl = x * Math.cos(th) - z * Math.sin(th);
-      const zl = x * Math.sin(th) + z * Math.cos(th);
-      const dist = Math.hypot(Math.hypot(xl, y) - Rv, zl) - rv - sv;
-      minTorus = Math.min(minTorus, dist);
-    }
-    for (let i = 0; i < P.length; i++)
-      for (let j = i + 1; j < P.length; j++)
-        minBalls = Math.min(
-          minBalls,
-          Math.hypot(P[i][0] - P[j][0], P[i][1] - P[j][1], P[i][2] - P[j][2]) -
-            2 * sv,
-        );
-  }
-  const msg = `Abstand Kugel–Torus ≥ ${minTorus.toFixed(2)}, Kugel–Kugel ≥ ${minBalls.toFixed(2)} (unit)`;
-  if (minTorus <= 0 || minBalls <= 0) console.warn("Kollision! " + msg);
-  else console.info(msg);
-};
-if (import.meta.env.DEV) verifyClearance();
 
 /* ------------------------------------------------------------------ */
 /* Geometrie-Helfer                                                   */
@@ -374,12 +335,12 @@ const buildSphere = (
   return makeGeometries(pos, col, triangles, lineIdx);
 };
 
-// eigener Farbverlauf je Kugel
+// Farbverlauf je Kugel (unten -> oben), Reihenfolge wie in `orbits`
 const sphereColors: [string, string][] = [
-  ["#991B1B", "#FCA5A5"], // flach:        rot
-  ["#16A34A", "#86EFAC"], // schraeg-hoch: grün
-  ["#1E40AF", "#93C5FD"], // schraeg-tief: blau
-  ["#EAB308", "#FEF9C3"], // steil:        gelb
+  ["#991B1B", "#FCA5A5"], // rot
+  ["#16A34A", "#86EFAC"], // grün
+  ["#1E40AF", "#93C5FD"], // blau
+  ["#EAB308", "#FEF9C3"], // gelb
 ];
 
 const sphereGeos = computed<Geometries[]>(() =>
