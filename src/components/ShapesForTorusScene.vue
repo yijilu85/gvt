@@ -376,10 +376,10 @@ const buildSphere = (
 
 // eigener Farbverlauf je Kugel
 const sphereColors: [string, string][] = [
-  ["#991B1B", "#FCA5A5"],
-  ["#166534", "#86EFAC"],
-  ["#1E40AF", "#93C5FD"],
-  ["#A16207", "#FDE047"],
+  ["#991B1B", "#FCA5A5"], // flach:        rot
+  ["#16A34A", "#86EFAC"], // schraeg-hoch: grün
+  ["#1E40AF", "#93C5FD"], // schraeg-tief: blau
+  ["#EAB308", "#FEF9C3"], // steil:        gelb
 ];
 
 const sphereGeos = computed<Geometries[]>(() =>

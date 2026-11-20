@@ -6,11 +6,9 @@
       :showEdges="showEdges"
       :cameraPosition="cameraPosition"
       :sceneCounter="sceneCounter"
-      :autoPlay="autoPlay"
     />
   </TresCanvas>
   <div class="control key-legend">
-    {{ autoPlay }}
     <span class="key-legend__title">Kamerasteuerung</span>
 
     <div class="key-legend__group">
@@ -33,6 +31,18 @@
       <span class="key-legend__label">+</span>
       <kbd class="key" :class="{ 'key--active': n && shift }">N</kbd>
       <span class="key-legend__label">Raus</span>
+    </div>
+
+    <span class="key-legend__title">Animation</span>
+
+    <div class="key-legend__group">
+      <kbd class="key" :class="{ 'key--active': autoPlay }">A</kbd>
+      <span class="key-legend__label">Autplay</span>
+    </div>
+
+    <div class="key-legend__group">
+      <kbd class="key" :class="{ 'key--active': k }">K</kbd>
+      <span class="key-legend__label">Weiter</span>
     </div>
   </div>
   <div class="control flex flex-row gap-4 w-full justify-center mt-4">
