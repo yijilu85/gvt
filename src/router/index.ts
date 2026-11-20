@@ -9,7 +9,7 @@ import { createRouter, createWebHistory } from "vue-router";
 import Index from "@/pages/index.vue";
 import Documentation from "@/pages/Documentation.vue";
 import ParametricSheet from "@/components/ParametricSheet.vue";
-import CameraScene from "@/components/CameraScene.vue";
+import CameraScene2 from "@/components/CameraScene2.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -17,10 +17,10 @@ const router = createRouter({
   routes: [
     {
       path: "/",
-      component: CameraScene,
+      component: CameraScene2,
     },
     { path: "/documentation", component: Documentation },
-    { path: "/camerascene", component: CameraScene },
+    { path: "/camerascenetorus", component: CameraScene2 },
   ],
 });
 
