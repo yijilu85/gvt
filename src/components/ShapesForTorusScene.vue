@@ -11,7 +11,6 @@
     :args="[10, 20, gridColor, gridColor]"
   />
 
-  <!-- Torus: dreht sich um die senkrechte y-Achse (wie eine kreiselnde Münze) -->
   <TresMesh v-if="showFill" :geometry="torus.surface" :rotation="[0, angle, 0]">
     <TresMeshBasicMaterial
       :vertex-colors="true"
@@ -28,7 +27,6 @@
     <TresLineBasicMaterial :color="edgeColor" />
   </TresLineSegments>
 
-  <!-- Kugeln: feste, unterschiedlich geneigte Kreisbahnen im Raum -->
   <template v-for="(ball, i) in balls" :key="ball.id">
     <TresMesh
       v-if="showFill"
@@ -73,7 +71,6 @@ const props = withDefaults(
     size?: number;
     cameraPosition?: { x: number; y: number; z: number };
     sceneCounter: number;
-    /** Winkel pro Inkrement von sceneCounter (Radiant) – gilt für Kugeln UND Torus */
     step?: number;
   }>(),
   {
@@ -103,39 +100,17 @@ onBeforeRender(() => {
   cameraRef.value?.lookAt(0, 0, 0);
 });
 
-/* ------------------------------------------------------------------ */
-/* Maße                                                               */
-/* ------------------------------------------------------------------ */
-// Torus: steht aufrecht (Ring in der lokalen xy-Ebene, Lochachse z) und
-// dreht sich mit Winkel θ um die senkrechte y-Achse. Seine Lochachse zeigt
-// dann in Richtung n(θ) = (sin θ, 0, cos θ) – sie liegt immer waagerecht.
-//
-// Kugeln: jede fliegt auf einem festen Kreis durch das Torus-Zentrum.
-// Damit sie durch die Öffnung passt, muss ihre Flugrichtung im Zentrum
-// parallel zur Lochachse sein. Deshalb gilt für jede Bahn:
-//   - Tangente im Zentrum d = (sin δ, 0, cos δ)  (waagerecht, Richtung δ)
-//   - Bahnebene um diese Tangente um den Winkel γ gekippt
-//     (γ = 0: waagerechte Bahn, γ = 90°: senkrechte Bahn)
-//   - Radius ρ
-//
-// Synchronisation: Kugeln und Torus nutzen denselben Winkel θ.
-// Kugel k erreicht das Zentrum genau dann, wenn θ = δ_k (bzw. δ_k + π),
-// also wenn die Lochachse in ihre Flugrichtung zeigt.
-//
-// Die Bahnparameter sind numerisch über einen vollen Umlauf geprüft:
-//   kleinster Abstand Kugel–Torus  ≈ 0.47 · unit
-//   kleinster Abstand Kugel–Kugel  ≈ 0.73 · unit
 const unit = computed(() => props.size / 4);
-const R = computed(() => 1.5 * unit.value); // großer Torusradius
-const r = computed(() => 0.4 * unit.value); // Rohrradius
-const s = computed(() => 0.3 * unit.value); // Kugelradius
+const R = computed(() => 1.5 * unit.value);
+const r = computed(() => 0.4 * unit.value);
+const s = computed(() => 0.3 * unit.value);
 
 type Orbit = {
   id: string;
-  rho: number; // Bahnradius (in unit)
-  delta: number; // Richtung der Tangente im Zentrum (Grad)
-  gamma: number; // Neigung der Bahnebene (Grad)
-  half: 0 | 1; // Durchflug bei θ = δ (0) oder θ = δ + 180° (1)
+  rho: number;
+  delta: number;
+  gamma: number;
+  half: 0 | 1;
 };
 
 const orbits: Orbit[] = [
@@ -145,29 +120,20 @@ const orbits: Orbit[] = [
   { id: "steil", rho: 2.0, delta: 90, gamma: 70, half: 0 },
 ];
 
-// Gitterebene unter dem tiefsten Punkt der Szene
 const gridY = computed(() => -2.8 * unit.value);
 
-/* ------------------------------------------------------------------ */
-/* Animation über sceneCounter                                        */
-/* ------------------------------------------------------------------ */
-// EIN gemeinsamer Winkel für Torus und Kugeln -> synchron
 const angle = computed(() => props.sceneCounter * props.step);
 
 type Vec3 = [number, number, number];
 const DEG = Math.PI / 180;
 
-// Position auf der Kreisbahn zum Torus-Winkel theta
 const onOrbit = (o: Orbit, theta: number): Vec3 => {
   const rho = o.rho * unit.value;
   const dl = o.delta * DEG;
   const g = o.gamma * DEG;
-  // d: Flugrichtung im Zentrum, h: waagerecht senkrecht zu d
   const d: Vec3 = [Math.sin(dl), 0, Math.cos(dl)];
   const h: Vec3 = [Math.cos(dl), 0, -Math.sin(dl)];
-  // w: Richtung vom Zentrum zum Kreismittelpunkt (h um γ nach oben gekippt)
   const w: Vec3 = [Math.cos(g) * h[0], Math.sin(g), Math.cos(g) * h[2]];
-  // phi = 0 -> Kugel im Zentrum
   const phi = theta - dl - o.half * Math.PI;
   const a = rho * (1 - Math.cos(phi));
   const b = rho * Math.sin(phi);
@@ -178,9 +144,6 @@ const balls = computed(() =>
   orbits.map((o) => ({ id: o.id, position: onOrbit(o, angle.value) })),
 );
 
-/* ------------------------------------------------------------------ */
-/* Geometrie-Helfer                                                   */
-/* ------------------------------------------------------------------ */
 type Geometries = { surface: BufferGeometry; lines: BufferGeometry };
 
 const makeGeometries = (
@@ -203,11 +166,8 @@ const makeGeometries = (
   return { surface, lines };
 };
 
-/* ------------------------------------------------------------------ */
-/* Torus (parametrisch)                                               */
-/* ------------------------------------------------------------------ */
-const TORUS_U = 48; // Segmente entlang des Rings
-const TORUS_V = 20; // Segmente um das Rohr
+const TORUS_U = 48;
+const TORUS_V = 20;
 
 const torus = computed<Geometries>(() => {
   const pos: number[] = [];
@@ -222,13 +182,11 @@ const torus = computed<Geometries>(() => {
       const v = (j / TORUS_V) * Math.PI * 2;
       const ring = R.value + r.value * Math.cos(v);
       pos.push(ring * Math.cos(u), ring * Math.sin(u), r.value * Math.sin(v));
-      // Farbverlauf entlang des Rings, damit die Drehung sichtbar ist
       c.setHSL(i / TORUS_U, 0.65, 0.45 + 0.15 * Math.cos(v));
       col.push(c.r, c.g, c.b);
     }
   }
 
-  // Index mit Umlauf (modulo), keine doppelten Naht-Vertices nötig
   const idx = (i: number, j: number) => (i % TORUS_U) * TORUS_V + (j % TORUS_V);
 
   for (let i = 0; i < TORUS_U; i++) {
@@ -238,16 +196,13 @@ const torus = computed<Geometries>(() => {
       const cc = idx(i + 1, j + 1);
       const d = idx(i, j + 1);
       tri.push(a, b, cc, a, cc, d);
-      lineIdx.push(a, b, a, d); // nur Gitterlinien, keine Diagonalen
+      lineIdx.push(a, b, a, d);
     }
   }
 
   return makeGeometries(pos, col, tri, lineIdx);
 });
 
-/* ------------------------------------------------------------------ */
-/* Kugel aus Oktaeder-Unterteilung                                    */
-/* ------------------------------------------------------------------ */
 const buildSphere = (
   radius: number,
   depthIn: number,
@@ -335,12 +290,11 @@ const buildSphere = (
   return makeGeometries(pos, col, triangles, lineIdx);
 };
 
-// Farbverlauf je Kugel (unten -> oben), Reihenfolge wie in `orbits`
 const sphereColors: [string, string][] = [
-  ["#991B1B", "#FCA5A5"], // rot
-  ["#16A34A", "#86EFAC"], // grün
-  ["#1E40AF", "#93C5FD"], // blau
-  ["#EAB308", "#FEF9C3"], // gelb
+  ["#991B1B", "#FCA5A5"],
+  ["#16A34A", "#86EFAC"],
+  ["#1E40AF", "#93C5FD"],
+  ["#EAB308", "#FEF9C3"],
 ];
 
 const sphereGeos = computed<Geometries[]>(() =>
