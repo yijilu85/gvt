@@ -46,19 +46,6 @@
     </div>
   </div>
   <div class="control flex flex-row gap-4 w-full justify-center mt-4">
-    <!-- <div
-      class="control flex gap-4 w-full items-center justify-center mt-4 w-1/2"
-    >
-      <span class="w-2/5">Rekursionstiefe:</span>
-      <v-slider
-        v-model="recursionDepth"
-        :min="0"
-        :max="10"
-        :step="1"
-        thumb-label="always"
-        hide-details
-      />
-    </div> -->
     <div
       class="control flex gap-4 w-full items-center justify-center mt-4 w-1/4"
     >
@@ -108,8 +95,8 @@ const radius = ref(10);
 let raf = 0;
 
 const tick = () => {
-  sceneCounter.value++; // 1 Schritt weiter
-  raf = requestAnimationFrame(tick); // für den nächsten Frame wieder anmelden
+  sceneCounter.value++;
+  raf = requestAnimationFrame(tick);
 };
 
 watch(autoPlay, (on) => (on ? tick() : cancelAnimationFrame(raf)));

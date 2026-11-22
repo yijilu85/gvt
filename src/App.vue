@@ -4,7 +4,7 @@
       <nav class="main-nav mt-4 mb-6 sm:mt-8 sm:mb-8">
         <!-- <RouterLink activeClass="active" to="/">Interaktive Scheibe</RouterLink> -->
         <RouterLink activeClass="active" to="/camerascenetorus"
-          >Kamera-Szene</RouterLink
+          >Kugeln & Torus</RouterLink
         >
         <RouterLink activeClass="active" to="/documentation"
           >Dokumentation</RouterLink
